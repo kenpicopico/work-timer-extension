@@ -198,7 +198,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                button,input{
+                button{
                     width: 100%;
                     height: 100%;
                     width: 32px;
@@ -229,6 +229,7 @@
                     border-radius: 4px;
                     background: $base-black;
                     overflow-y: auto;
+                    z-index: 1;
                     li{
                         width: 100%;
                         padding: 6px 0;
@@ -259,7 +260,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                input{
+                button{
+                    width: 100%;
+                    height: 100%;
                     width: 32px;
                     height: 30px;
                     display: flex;
@@ -271,6 +274,35 @@
                     font-weight: 400;
                     color: $content-text;
                     border-radius: 4px;
+                }
+                .box{
+                    width: 32px;
+                    height: 30px;
+                    position: relative;
+                }
+                .selects{
+                    width: 120%;
+                    height: 160px;
+                    display: block;
+                    position: absolute;
+                    top: 32px;
+                    left: 50%;
+                    transform: translate(-50%,0);
+                    border-radius: 4px;
+                    background: $base-black;
+                    overflow-y: auto;
+                    z-index: 1;
+                    li{
+                        width: 100%;
+                        padding: 6px 0;
+                        text-align: center;
+                        font-size: 14px;
+                        color: $content-text;
+                        cursor: pointer;
+                        &:hover{
+                            background: $hover-gray;
+                        }
+                    }
                 }
                 .colon{
                     text-align: center;

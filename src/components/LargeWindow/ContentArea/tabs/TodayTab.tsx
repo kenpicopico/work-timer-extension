@@ -1,15 +1,43 @@
 
-import { formatElapsedTime, formatHoursMinutes } from '../../../../utils/time';
+import { formatElapsedTime, formatHoursMinutes, setTimeOfDay } from '../../../../utils/time';
 import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
 import { useTodayRecords } from '../../../../hooks/useTodayRecords';
 import { useProjectContext } from '../../../../contexts/ProjectContext';
 import { useClientBreakdown } from '../../../../hooks/useClientBreakdown';
+import { updateSegment, type Segment, type SegmentError } from '../../../../utils/storage';
+import { useEffect, useState } from 'react';
+import { TimeDropdown } from './TimeDropdown';
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i)
+const MINUTES = Array.from({ length: 60}, (_, i) => i)
+
+type TimeField = 'startTime' | 'endTime'
+type TimeUnit = 'hours' | 'minutes'
 
 export function TodayTab(){
     const { statusLabel, statusClass, buttonLabel, buttonIcon, buttonAction, showWarning, elapsedSeconds } = useTrackingDisplay()
     const { todayStartMs, todaySegments, formattedDate} = useTodayRecords()
     const { projects } = useProjectContext()
     const { clientBreakdown } = useClientBreakdown(todaySegments)
+    const [ warning, setWarning ] = useState<SegmentError | null>(null)
+
+    const handleTimeChange = async (segment:Segment,field:TimeField,unit:TimeUnit,value:number) => {
+        const base = segment[field]
+        if(base === null) return
+
+        const currentHours = new Date(base).getHours()
+        const currentMinutes = new Date(base).getMinutes()
+
+        const newHours = unit === 'hours' ? value : currentHours
+        const newMinutes = unit === 'minutes' ? value : currentMinutes
+
+        const error = await updateSegment(segment.id,{ [field] :setTimeOfDay(base,newHours,newMinutes)})
+        if(error !== null) setWarning(error)
+        
+    }
+    useEffect(() => {
+        console.log(warning)
+    },[warning])
 
     return (
         <div className="c-content-outer">
@@ -85,110 +113,67 @@ export function TodayTab(){
                             <li className="delete">削除</li>
                         </ul>
                         <ul className="p-today__details-data">
-                            <li className="item">
-                                <span style={{'background':'#FF0000'}} className="color" />
-                                <div className="start">
-                                    <div className='box'>
-                                        <button type='button'>10</button>
-                                        <ul className='selects'>
-                                            <li>00</li>
-                                            <li>01</li>
-                                            <li>02</li>
-                                            <li>03</li>
-                                            <li>04</li>
-                                            <li>05</li>
-                                            <li>06</li>
-                                            <li>07</li>
-                                            <li>08</li>
-                                            <li>09</li>
-                                            <li>10</li>
-                                            <li>11</li>
-                                            <li>12</li>
-                                            <li>13</li>
-                                            <li>14</li>
-                                            <li>15</li>
-                                            <li>16</li>
-                                            <li>17</li>
-                                            <li>18</li>
-                                            <li>19</li>
-                                            <li>20</li>
-                                            <li>21</li>
-                                            <li>22</li>
-                                            <li>23</li>
-                                        </ul>
-                                    </div>
-                                    <span className="colon">:</span>
-                                    <input className="minute" type="number" />
-                                </div>
-                                <span className="separate">〜</span>
-                                <div className="finish">
-                                    <input className="hour" type="number" />
-                                    <span className="colon">:</span>
-                                    <input className="minute" type="number" />
-                                </div>
-                                <div className="client">
-                                    <button className="c-select__trigger">
-                                        <span className="c-select__text">キンコーズ</span>
-                                        <span className="c-select__arrow-icon">▾</span>
-                                    </button>
-                                    <ul className="c-select__options">
-                                        <li className="c-select__option-item">クライアントB</li>
-                                        <li className="c-select__option-item">クライアントC</li>
-                                        <li className="c-select__option-item">クライアントD</li>
-                                    </ul>
-                                </div>
-                                <div className="project">
-                                    <button className="c-select__trigger">
-                                        <span className="c-select__text">マルヤ</span>
-                                        <span className="c-select__arrow-icon">▾</span>
-                                    </button>
-                                    <ul className="c-select__options">
-                                        <li className="c-select__option-item">案件B</li>
-                                        <li className="c-select__option-item">案件C</li>
-                                        <li className="c-select__option-item">案件D</li>
-                                    </ul>
-                                </div>
-                                <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
-                                <button className="delete"><img src="./images/icon_delete.svg" alt="" /></button>
-                            </li>
-                            <li className="item">
-                                <span style={{'background':'#FF0000'}} className="color" />
-                                <div className="start">
-                                    <input className="hour" type="number" />
-                                    <span className="colon">:</span>
-                                    <input className="minute" type="number" />
-                                </div>
-                                <span className="separate">〜</span>
-                                <div className="finish">
-                                    <input className="hour" type="number" />
-                                    <span className="colon">:</span>
-                                    <input className="minute" type="number" />
-                                </div>
-                                <div className="client">
-                                    <button className="c-select__trigger">
-                                        <span className="c-select__text">キンコーズ</span>
-                                        <span className="c-select__arrow-icon">▾</span>
-                                    </button>
-                                    <ul className="c-select__options">
-                                        <li className="c-select__option-item">クライアントB</li>
-                                        <li className="c-select__option-item">クライアントC</li>
-                                        <li className="c-select__option-item">クライアントD</li>
-                                    </ul>
-                                </div>
-                                <div className="project">
-                                    <button className="c-select__trigger">
-                                        <span className="c-select__text">マルヤ</span>
-                                        <span className="c-select__arrow-icon">▾</span>
-                                    </button>
-                                    <ul className="c-select__options">
-                                        <li className="c-select__option-item">案件B</li>
-                                        <li className="c-select__option-item">案件C</li>
-                                        <li className="c-select__option-item">案件D</li>
-                                    </ul>
-                                </div>
-                                <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
-                                <button className="delete"><img src="./images/icon_delete.svg" alt="" /></button>
-                            </li>
+
+                            {todaySegments.map(segment => {
+                                const project = projects.find(project => project.id === segment.projectId)
+                                return (
+                                    <li key={segment.id} className="item">
+                                        <span style={{background : `${project?.color}`}} className="color" />
+                                        <div className="start">
+                                            <TimeDropdown
+                                                value={new Date(segment.startTime).getHours()}
+                                                options={HOURS}
+                                                onSelect={(n) => handleTimeChange(segment, 'startTime', 'hours', n)}
+                                            />
+                                            <span className="colon">:</span>
+                                            <TimeDropdown
+                                                value={new Date(segment.startTime).getMinutes()}
+                                                options={MINUTES}
+                                                onSelect={(n) => handleTimeChange(segment, 'startTime', 'minutes', n)}
+                                            />
+                                        </div>
+                                        <span className="separate">〜</span>
+                                        <div className="finish">
+                                            <TimeDropdown
+                                                value={segment.endTime === null ? null : new Date(segment.endTime).getHours()}
+                                                options={HOURS}
+                                                onSelect={(n) => handleTimeChange(segment, 'endTime', 'hours', n)}
+                                            />
+                                            <span className="colon">:</span>
+                                            <TimeDropdown
+                                                value={segment.endTime === null ? null : new Date(segment.endTime).getMinutes()}
+                                                options={MINUTES}
+                                                onSelect={(n) => handleTimeChange(segment, 'endTime', 'minutes', n)}
+                                            />
+                                        </div>
+                                        <div className="client">
+                                            <button className="c-select__trigger">
+                                                <span className="c-select__text">キンコーズ</span>
+                                                <span className="c-select__arrow-icon">▾</span>
+                                            </button>
+                                            <ul className="c-select__options">
+                                                <li className="c-select__option-item">クライアントB</li>
+                                                <li className="c-select__option-item">クライアントC</li>
+                                                <li className="c-select__option-item">クライアントD</li>
+                                            </ul>
+                                        </div>
+                                        <div className="project">
+                                            <button className="c-select__trigger">
+                                                <span className="c-select__text">マルヤ</span>
+                                                <span className="c-select__arrow-icon">▾</span>
+                                            </button>
+                                            <ul className="c-select__options">
+                                                <li className="c-select__option-item">案件B</li>
+                                                <li className="c-select__option-item">案件C</li>
+                                                <li className="c-select__option-item">案件D</li>
+                                            </ul>
+                                        </div>
+                                        <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
+                                        <button className="delete"><img src="./images/icon_delete.svg" alt="" /></button>
+                                    </li>
+                                )
+                            })}
+                            
                         </ul>
                         <button className="p-today__details-add"><img src="./images/icon_plus.svg" alt="" />記録を追加</button>
                     </div>

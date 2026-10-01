@@ -22,3 +22,9 @@ export function formatHoursMinutes(totalSeconds : number){
     const time = `${newHour}:${newMinute}`
     return time
 }
+
+export const setTimeOfDay = (base:number,hours:number,mimnutes:number):number => {
+    const d = new Date(base)
+    d.setHours(hours,mimnutes,0,0)
+    return d.getTime()
+}
