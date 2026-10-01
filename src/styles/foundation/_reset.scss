@@ -1,0 +1,67 @@
+* {
+    box-sizing: border-box;
+}
+
+html,body,h1,h2,h3,h4,h5,h6,ul,ol,dl,li,dt,dd,p,div,span,img,a,table,tr,th,td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 1.6rem;
+    font-weight: normal;
+    font: inherit;
+}
+
+article,header,footer,aside,figure,figcaption,nav,section {
+    display: block
+}
+
+html {
+    overflow: auto;
+    font-size: 62.5%;
+}
+
+body {
+    font-family: "Noto Sans JP","Hiragino Kaku Gothic ProN","Hiragino Kaku Gothic Pro",YuGothic,YuGothicM,Meiryo,sans-serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    background: #fff;
+    color: #DEDEDC;
+    font-feature-settings: "palt";
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+ol,ul {
+    list-style: none;
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    vertical-align: bottom;
+    width: 100%;
+    max-width: 100%;
+}
+
+button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    border: none;
+    background: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    appearance: none;
+    cursor: pointer;
+    color: #505050;
+}
+
+button:disabled:hover {
+    opacity: 1;
+}

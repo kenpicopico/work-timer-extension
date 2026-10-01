@@ -1,0 +1,129 @@
+@use "../../styles/global" as *;
+
+.p-top{
+    &__main{
+        width: 100%;
+        position: relative;
+    }
+    &__head{
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: black;
+    }
+    &__link{
+        width: 30px;
+        display: block;
+        transition: filter 0.2s ease;
+        &:hover{
+            filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
+        }
+    }
+    &__bottom{
+        width: 100%;
+        padding: 19px 15px 23px;
+        display: flex;
+        justify-content: flex-start;
+        column-gap: 10px;
+        background: $content-gray;
+    }
+    &__times{
+        width: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .status{
+            font-family: "Roboto", sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            &.is-tracking{
+                color: $green;
+            }
+            &.is-idling{
+                color: $yellow;
+            }
+        }
+        .time{
+            margin-top: 6px;
+            font-family: "Roboto", sans-serif;
+            font-size: 36px;
+            font-weight: 400;
+            line-height: 1;
+        }
+    }
+    &__button{
+        width: 200px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        column-gap: 10px;
+        color: white;
+        font-family: "Roboto", sans-serif;
+        font-size: 32px;
+        font-weight: 400;
+        border-radius: 200px;
+        transition: filter 0.2s ease;
+        &:hover{
+            filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.25));
+        }
+        &.is-paused{
+            background: $light-green;
+            border: 2px solid $green;
+            img{
+                width: 22px;
+            }
+        }
+        &.is-tracking{
+            background: $light-red;
+            border: 2px solid $red;
+            img{
+                width: 22px;
+            }
+        }
+        &.is-idling{
+            background: $light-red;
+            border: 2px solid $red;
+            img{
+                width: 22px;
+            }
+        }
+    }
+    &__caution{
+        width: 290px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        border-radius: 8px;
+        background: $content-main-bg;
+        border: 1px solid $content-text;
+        &-inner{
+            width: 100%;
+            height: 100%;
+            padding: 19px 0 21px;
+            position: relative;
+            button{
+                width: 28px;
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                &:hover{
+                    opacity: 0.75;
+                }
+            }
+            p{
+                text-align: center;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.5;
+                color: $content-text;
+                img{
+                    width: 20px;
+                    margin: 0 5px;
+                }
+            }
+        }
+    }
+}

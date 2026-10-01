@@ -1,0 +1,63 @@
+@use "../../global" as *;
+
+.c-content{
+    width: 100%;
+    min-height: 0;
+    padding: 0 10px 10px;
+    flex-grow: 1;
+    overflow-y: auto;
+    &-outer{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    &-inner{
+        height: 100%;
+        padding: 20px;
+        border-radius: 8px;
+        background: $content-main-bg;
+    }
+    &__head{
+        width: 100%;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        &-date{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            .today{
+                display: flex;
+                align-items: center;
+                font-size: 30px;
+                font-weight: 500;
+                color: $content-text;
+            }
+            .color{
+                width: 20px;
+                height: 20px;
+                border-radius: 20px;
+                margin-right: 8px;
+                display: block;
+            }
+            .buttons{
+                display: flex;
+                align-items: center;
+            }
+            .button{
+                width: 28px;
+                margin: 15px 5px 0 0;
+                &:hover{
+                    opacity: 0.75;
+                }
+            }
+            .date{
+                margin-top: 15px;
+                font-size: 26px;
+                font-weight: 400;
+                color: $content-text;
+            }
+        }
+    }
+}

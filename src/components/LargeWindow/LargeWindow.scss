@@ -1,0 +1,18 @@
+@use "../../styles/global" as *;
+
+.p-large{
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    &__shrink-button{
+        width: 30px;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+        &:hover{
+            opacity: 0.75;
+        }
+    }
+}

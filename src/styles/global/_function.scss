@@ -1,0 +1,10 @@
+
+@function fluid-font($min-px, $max-px, $min-vw: 375, $max-vw: 1920) {
+    $slope: ($max-px - $min-px) / ($max-vw - $min-vw);
+    $intercept: $min-px - $slope * $min-vw;
+    @return clamp(
+      #{$min-px / 10}rem,
+      #{$intercept / 10}rem + #{$slope * 100}vw,
+      #{$max-px / 10}rem
+    );
+}

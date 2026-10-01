@@ -1,0 +1,74 @@
+@use "../../global" as *;
+
+.c-select{
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    &__outer{
+        width: 160px;
+        position: relative;
+        &.is-open{
+            .c-select__arrow-icon{
+                transform: rotate(180deg);
+            }
+            .c-select__options{
+                display: block;
+            }
+        }
+    }
+    &__trigger{
+        width: 100%;
+        padding: 8px 10px;
+        background-color: $base-black;
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        outline: none;
+        transition: background-color 0.2s;
+        &:hover{
+            background: $hover-black;
+        }
+    }
+    &__arrow-icon{
+        font-size: 12px;
+        transition: transform 0.2s ease;
+    }
+    &__options{
+        width: 100%;
+        max-height: 90px;
+        padding: 4px 0;
+        margin: 0;
+        display: none;
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 0;
+        right: 0;
+        background-color: $base-black;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        overflow-y: auto;
+    }
+    &__option-item{
+        padding: 8px 10px;
+        text-align: left;
+        color: white;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 0.15s;
+        &:hover{
+            background: $hover-black;
+        }
+        &.is-selected{
+            background-color: $selected-black;
+            font-weight: bold;
+        }
+    }
+}

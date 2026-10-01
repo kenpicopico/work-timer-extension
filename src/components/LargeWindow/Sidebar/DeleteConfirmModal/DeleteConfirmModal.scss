@@ -1,0 +1,64 @@
+@use "../../../../styles/global" as *;
+
+.p-delete-modal{
+    width: 100%;
+    inset: 0;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    &__inner{
+        width: 460px;
+        padding: 50px 60px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 8px;
+        border: 1px solid $content-text;
+        background: $content-main-bg;
+    }
+    &__close{
+        width: 28px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        &:hover{
+            opacity: 0.75;
+        }
+    }
+    &__text{
+        font-size: 16px;
+        line-height: 1.5;
+        color: $content-text;
+    }
+    &__caution{
+        margin-top: 24px;
+        font-size: 16px;
+        color: $caution-red;
+    }
+    &__buttons{
+        margin-top: 34px;
+        display: flex;
+        align-items: center;
+        column-gap: 20px;
+        button{
+            width: 160px;
+            height: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: $selected-gray;
+            font-size: 16px;
+            color: $button-white;
+            &:hover{
+                background: $hover-gray;
+            }
+            &.yes{
+                color: $caution-red;
+            }
+        }
+    }
+}
