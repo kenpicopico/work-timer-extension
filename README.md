@@ -1,36 +1,77 @@
-# work-timer-extension
-作業時間管理chrome拡張機能
+# work-timer-extension(仮)
 
-# React + TypeScript + Vite
+**フリーランスのための、クライアント別・案件別の作業時間トラッカー（Chrome拡張機能）**
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+STARTを押すだけで作業時間を記録し、「どのクライアントの、どの案件に、何時間使ったか」を可視化します。席を離れたら自動で止まり、記録は後から修正できます。
 
-Currently, two official plugins are available:
+> 🚧 開発中です。実装済みの機能と、これからの予定は下記にまとめています。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![今日の記録画面](docs/today.png)
 
-## React Compiler
+## なぜ作っているか
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+フリーランスとして仕事をしていると実際どの案件に何時間使ったのかを正確に測ることが案外難しいです。
+作業開始時間も日によってまちまちなため、開始時間をメモし忘れたり、休憩時間が曖昧になることが多々ありました。
+作業時間を記録してくれるアプリもありますが、いまいち内容が複雑だったり使いにくかったりしたため、自分で作ることにしました。
+ちょうどReactを習得中だったこともあり、実戦で学びながら進めるのに最適な題材でした。
 
-## Expanding the Oxlint configuration
+## 主な機能（実装済み）
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **ワンクリック計測**：START / STOP、案件の切り替えに対応
+- **自動アイドル検知**：一定時間操作がないと作業を確定して一時停止し、操作再開で新しい作業として記録を再開
+- **自動終了**：放置された計測を一定時間後に自動で終了
+- **クライアント / 案件の管理**：追加・リネーム・削除（確認モーダル付き）、色の重複回避
+- **今日の記録画面**
+  - 0:00〜24:00のタイムライン表示
+  - クライアント別 → 案件別の内訳（`4:30` 形式）
+  - 記録の開始・終了時刻を、時と分のプルダウンで編集（不正な値は警告表示）
+- **小窓 / 大窓の切り替え**：作業中は邪魔にならないよう小さく、確認や編集のときは大きく
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+## これから
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- [ ] 記録の削除・クライアント／案件の変更UI
+- [ ] 統計画面（StatsTab）
+- [ ] ログイン機能
 
+## 技術スタック
+
+| 分類 | 内容 |
+|---|---|
+| UI | React + TypeScript + Vite |
+| 拡張機能 | Chrome Extension（Manifest V3） |
+| スタイル | SCSS（FLOCSS設計） |
+| データ保存 | `chrome.storage.local` |
+| 計測制御 | `chrome.idle` / `chrome.alarms` / `chrome.runtime.onMessage` |
+
+## 設計で工夫した点・つまずいた点
+
+実際に開発する中で出会った問題と、その判断を記録しています。
+
+### 状態を「1つの値」で表す
+計測状態を `currentSegment`（`null` = 停止 / `working` / `idle`）という1つの値で持たせ、「停止中なのに作業中」のような矛盾した状態が起きないようにしました。
+
+### Service Workerのコードが画面側に混入する問題
+画面側のコードがバックグラウンド用のファイルをimportした結果、`chrome.idle` が `undefined` になるエラーが発生しました。関数・型・定数を `storage.ts` に分離し、バックグラウンド側はイベントリスナー登録だけにする構成で解決しました。
+
+### アイドル検知で時刻が逆転するバグ
+開始直後にアイドルになると、終了時刻が開始時刻より前になる矛盾データが生まれていました。境界時刻を補正するガードを追加して解決しました。
+
+### 編集時の検証を「保存する関数の中」に置く
+時刻編集のチェック（開始 > 終了、未来の時刻、他の記録や計測中の時間帯との重なり）を、画面側ではなく保存関数 `updateSegment` に集約しました。呼び出し元が増えても、不正なデータは保存されません。失敗時はエラーの種類を返し、画面側で文言を出し分けます。
+
+### 割り切った判断
+読み取り → 変更 → 保存の間に別の書き込みが入ると、記録が1件消える可能性があります。発生確率と被害を見積もったうえで、現時点では対策しない判断にしています。
+
+## 開発ログ
+
+Zenn:https://zenn.dev/kengohidaka
+X:https://x.com/Keng0_026
+
+## お仕事のご相談
+
+Chrome拡張機能、React / TypeScriptでのWebアプリ開発のご相談をお受けしています。
+
+ポートフォリオ:https://with-kengo.com/
+メール:kengo.hidaka.26z@gmail.com
+
+## ライセンス
