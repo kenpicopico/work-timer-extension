@@ -92,6 +92,7 @@ export const updateSegment = async (id: number, changes: Partial<Segment>): Prom
         if(edited.startTime < now && current.startTime < editedEnd) return 'OVERLAP_CURRENT'
     } 
 
+    //エラーがないなら上書きして更新
     const newSegments = segments.map(segment => id === segment.id ? edited : segment)
     await chrome.storage.local.set({'segments':newSegments})
     return null

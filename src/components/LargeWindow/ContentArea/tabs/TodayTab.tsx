@@ -10,6 +10,7 @@ import { TimeDropdown } from './TimeDropdown';
 import { SegmentDeleteModal } from './SegmentDeleteModal/SegmentDeleteModal';
 import { useClientContext } from '../../../../contexts/ClientContext';
 import { SelectDropdown } from './SelectDropdown';
+import { useTrackingContext } from '../../../../contexts/TrackingContext';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
@@ -30,6 +31,8 @@ export function TodayTab(){
     const { projects } = useProjectContext()
     const { clients } = useClientContext()
     const { clientBreakdown } = useClientBreakdown(todaySegments)
+    const { currentSegment } = useTrackingContext()
+
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
     const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
 
@@ -62,6 +65,11 @@ export function TodayTab(){
 
     //案件が最低1つはあるクライアントの配列
     const clientsWithProjects = clients.filter(c => projects.some(p => p.clientId === c.id))
+
+    const newHours = currentSegment === null ? '' : String(new Date(currentSegment.startTime).getHours()).padStart(2, '0')
+    const newMinutes = currentSegment === null ? '' : String(new Date(currentSegment.startTime).getMinutes()).padStart(2, '0')
+    const currentSegmentProject = projects.find(p => p.id === currentSegment?.projectId)
+    const currentSegmentClient = clients.find(c => c.id === currentSegmentProject?.clientId)
 
 
     return (
@@ -134,7 +142,6 @@ export function TodayTab(){
                             <li className="finish">終了</li>
                             <li className="client">クライアント</li>
                             <li className="project">案件</li>
-                            <li className="reproduction">複製</li>
                             <li className="delete">削除</li>
                         </ul>
                         <ul className="p-today__details-data">
@@ -187,11 +194,32 @@ export function TodayTab(){
                                                 onSelect={(projectId) => handleProjectChange(segment.id,projectId)}
                                             />
                                         </div>
-                                        <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
                                         <button className="delete" onClick={() => setDeleteTargetId(segment.id)}><img src="./images/icon_delete.svg" alt="" /></button>
                                     </li>
                                 )
                             })}
+
+                            { currentSegment !== null && currentSegment.status === 'working' && (
+                                <li className="item">
+                                    <span style={{background : `${currentSegmentProject?.color}`}} className="color" />
+                                    <div className="start">
+                                        <p className='cs-time'>{newHours}</p>
+                                        <span className="colon">:</span>
+                                        <p className='cs-time'>{newMinutes}</p>
+                                    </div>
+                                    <span className="separate">〜</span>
+                                    <div className='tracking'>
+                                        <p>tracking</p>
+                                    </div>
+                                    <div className="client">
+                                        <p className='cs-name'>{currentSegmentClient?.name}</p>
+                                    </div>
+                                    <div className="project">
+                                        <p className='cs-name'>{currentSegmentProject?.name}</p>
+                                    </div>
+                                    <div className='delete empty'></div>
+                                </li>
+                            )}
                             
                         </ul>
                         <button className="p-today__details-add"><img src="./images/icon_plus.svg" alt="" />記録を追加</button>

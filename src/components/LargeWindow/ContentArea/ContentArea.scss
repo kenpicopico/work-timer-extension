@@ -168,10 +168,6 @@
                 width: 160px;
                 margin-right: 10px;
             }
-            .reproduction{
-                width: 30px;
-                margin-right: 10px;
-            }
             .delete{
                 width: 30px;
             }
@@ -208,6 +204,7 @@
                     justify-content: center;
                     border: none;
                     background: $selected-gray;
+                    font-family: "Roboto", sans-serif;
                     font-size: 16px;
                     font-weight: 400;
                     color: $content-text;
@@ -234,6 +231,7 @@
                         width: 100%;
                         padding: 6px 0;
                         text-align: center;
+                        font-family: "Roboto", sans-serif;
                         font-size: 14px;
                         color: $content-text;
                         cursor: pointer;
@@ -242,8 +240,22 @@
                         }
                     }
                 }
+                .cs-time{
+                    width: 32px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: "Roboto", sans-serif;
+                    font-size: 16px;
+                    color: $unselected-gray;
+                    background: $content-main-bg;
+                    border-radius: 4px;
+                    border: 1px solid $selected-gray;
+                }
                 .colon{
                     text-align: center;
+                    font-family: "Roboto", sans-serif;
                     font-size: 14px;
                     color: $unselected-gray;
                 }
@@ -270,6 +282,7 @@
                     justify-content: center;
                     border: none;
                     background: $selected-gray;
+                    font-family: "Roboto", sans-serif;
                     font-size: 16px;
                     font-weight: 400;
                     color: $content-text;
@@ -296,6 +309,7 @@
                         width: 100%;
                         padding: 6px 0;
                         text-align: center;
+                        font-family: "Roboto", sans-serif;
                         font-size: 14px;
                         color: $content-text;
                         cursor: pointer;
@@ -306,9 +320,24 @@
                 }
                 .colon{
                     text-align: center;
+                    font-family: "Roboto", sans-serif;
                     font-size: 14px;
                     color: $unselected-gray;
                 }
+            }
+            .tracking{
+                width: 76px;
+                height: 32px;
+                margin-right: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: "Roboto", sans-serif;
+                font-size: 16px;
+                color: $unselected-gray;
+                background: $content-main-bg;
+                border-radius: 4px;
+                border: 1px solid $selected-gray;
             }
             .client{
                 margin-right: 10px;
@@ -328,18 +357,18 @@
                     color: $content-text;
                 }
             }
-            .reproduction{
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
+            .cs-name{
+                width: 160px;
+                height: 32px;
+                padding: 0 10px 2px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
+                font-size: 14px;
+                color: $unselected-gray;
+                background: $content-main-bg;
                 border-radius: 4px;
-                background: $selected-gray;
-                img{
-                    width: 16px;
-                }
+                border: 1px solid $selected-gray;
             }
             .delete{
                 width: 30px;
@@ -351,6 +380,9 @@
                 background: $selected-gray;
                 img{
                     width: 16px;
+                }
+                &.empty{
+                    background: $content-main-bg;
                 }
             }
         }
