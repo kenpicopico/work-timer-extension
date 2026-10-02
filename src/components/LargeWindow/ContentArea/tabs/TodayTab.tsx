@@ -4,9 +4,10 @@ import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
 import { useTodayRecords } from '../../../../hooks/useTodayRecords';
 import { useProjectContext } from '../../../../contexts/ProjectContext';
 import { useClientBreakdown } from '../../../../hooks/useClientBreakdown';
-import { updateSegment, type Segment, type SegmentError } from '../../../../utils/storage';
+import { updateSegment, deleteSegment, type Segment, type SegmentError } from '../../../../utils/storage';
 import { useState } from 'react';
 import { TimeDropdown } from './TimeDropdown';
+import { SegmentDeleteModal } from './SegmentDeleteModal/SegmentDeleteModal';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
@@ -27,6 +28,7 @@ export function TodayTab(){
     const { projects } = useProjectContext()
     const { clientBreakdown } = useClientBreakdown(todaySegments)
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
+    const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
 
     const handleTimeChange = async (segment:Segment,field:TimeField,unit:TimeUnit,value:number) => {
         const base = segment[field]
@@ -40,8 +42,8 @@ export function TodayTab(){
 
         const error = await updateSegment(segment.id,{ [field] :setTimeOfDay(base,newHours,newMinutes)})
         if(error !== null) setWarning(error)
-        
     }
+
 
     return (
         <div className="c-content-outer">
@@ -173,7 +175,7 @@ export function TodayTab(){
                                             </ul>
                                         </div>
                                         <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
-                                        <button className="delete"><img src="./images/icon_delete.svg" alt="" /></button>
+                                        <button className="delete" onClick={() => setDeleteTargetId(segment.id)}><img src="./images/icon_delete.svg" alt="" /></button>
                                     </li>
                                 )
                             })}
@@ -200,6 +202,15 @@ export function TodayTab(){
                     <p className='message'>{WARNING_MESSAGES[warning]}</p>
                 </div>
             </div>
+        )}
+        {deleteTargetId !== null && (
+            <SegmentDeleteModal 
+                onConfirm={async () => {
+                    await deleteSegment(deleteTargetId)
+                    setDeleteTargetId(null)
+                }}
+                onCancel={() => setDeleteTargetId(null)}
+            />
         )}
         </div>
     )
