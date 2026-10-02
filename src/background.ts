@@ -10,9 +10,10 @@ function openCustomWindow() {
     });
 }
 
+chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS)
+
 chrome.runtime.onInstalled.addListener(() => {
     openCustomWindow();
-    chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS)
 });
 
 chrome.action.onClicked.addListener(() => {

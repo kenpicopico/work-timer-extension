@@ -8,6 +8,8 @@ import { updateSegment, deleteSegment, type Segment, type SegmentError } from '.
 import { useState } from 'react';
 import { TimeDropdown } from './TimeDropdown';
 import { SegmentDeleteModal } from './SegmentDeleteModal/SegmentDeleteModal';
+import { useClientContext } from '../../../../contexts/ClientContext';
+import { SelectDropdown } from './SelectDropdown';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
@@ -26,6 +28,7 @@ export function TodayTab(){
     const { statusLabel, statusClass, buttonLabel, buttonIcon, buttonAction, showWarning, elapsedSeconds } = useTrackingDisplay()
     const { todayStartMs, todaySegments, formattedDate} = useTodayRecords()
     const { projects } = useProjectContext()
+    const { clients } = useClientContext()
     const { clientBreakdown } = useClientBreakdown(todaySegments)
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
     const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
@@ -43,6 +46,22 @@ export function TodayTab(){
         const error = await updateSegment(segment.id,{ [field] :setTimeOfDay(base,newHours,newMinutes)})
         if(error !== null) setWarning(error)
     }
+
+    const handleClientChange = (segmentId:number, clientId:number, currentClientId:number | undefined) => {
+        if(clientId === currentClientId) return
+        const clientProjects = projects.filter(p => p.clientId === clientId)
+        const first = clientProjects[0]
+        if(!first) return
+        handleProjectChange(segmentId,first.id)
+    }
+
+    const handleProjectChange = async (segmentId:number,projectId:number) =>{
+        const error = await updateSegment(segmentId, { projectId : projectId })
+        if(error !== null) return setWarning(error)
+    }
+
+    //案件が最低1つはあるクライアントの配列
+    const clientsWithProjects = clients.filter(c => projects.some(p => p.clientId === c.id))
 
 
     return (
@@ -122,6 +141,8 @@ export function TodayTab(){
 
                             {todaySegments.map(segment => {
                                 const project = projects.find(project => project.id === segment.projectId)
+                                const client = clients.find(client => project?.clientId === client.id)
+                                const currentProjects = projects.filter(project => project.clientId === client?.id)
                                 return (
                                     <li key={segment.id} className="item">
                                         <span style={{background : `${project?.color}`}} className="color" />
@@ -152,27 +173,19 @@ export function TodayTab(){
                                                 onSelect={(n) => handleTimeChange(segment, 'endTime', 'minutes', n)}
                                             />
                                         </div>
-                                        <div className="client">
-                                            <button className="c-select__trigger">
-                                                <span className="c-select__text">キンコーズ</span>
-                                                <span className="c-select__arrow-icon">▾</span>
-                                            </button>
-                                            <ul className="c-select__options">
-                                                <li className="c-select__option-item">クライアントB</li>
-                                                <li className="c-select__option-item">クライアントC</li>
-                                                <li className="c-select__option-item">クライアントD</li>
-                                            </ul>
+                                        <div className="client c-select__outer">
+                                            <SelectDropdown 
+                                                value={client?.name} 
+                                                options={clientsWithProjects}
+                                                onSelect={(clientId) => handleClientChange(segment.id, clientId,client?.id)}
+                                             />
                                         </div>
-                                        <div className="project">
-                                            <button className="c-select__trigger">
-                                                <span className="c-select__text">マルヤ</span>
-                                                <span className="c-select__arrow-icon">▾</span>
-                                            </button>
-                                            <ul className="c-select__options">
-                                                <li className="c-select__option-item">案件B</li>
-                                                <li className="c-select__option-item">案件C</li>
-                                                <li className="c-select__option-item">案件D</li>
-                                            </ul>
+                                        <div className="project c-select__outer">
+                                            <SelectDropdown 
+                                                value={project?.name} 
+                                                options={currentProjects} 
+                                                onSelect={(projectId) => handleProjectChange(segment.id,projectId)}
+                                            />
                                         </div>
                                         <button className="reproduction"><img src="./images/icon_reproduction.svg" alt="" /></button>
                                         <button className="delete" onClick={() => setDeleteTargetId(segment.id)}><img src="./images/icon_delete.svg" alt="" /></button>
