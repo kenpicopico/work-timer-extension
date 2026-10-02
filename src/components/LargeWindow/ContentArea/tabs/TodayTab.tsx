@@ -5,11 +5,18 @@ import { useTodayRecords } from '../../../../hooks/useTodayRecords';
 import { useProjectContext } from '../../../../contexts/ProjectContext';
 import { useClientBreakdown } from '../../../../hooks/useClientBreakdown';
 import { updateSegment, type Segment, type SegmentError } from '../../../../utils/storage';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TimeDropdown } from './TimeDropdown';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
+const WARNING_MESSAGES: Record<SegmentError, string> = {
+    START_AFTER_END: '※開始時刻は終了時刻より前に設定してください。',
+    FUTURE: '※現在より後の時刻には設定できません。',
+    OVERLAP: '※他の記録の時間帯と重なるため、設定できません。',
+    OVERLAP_CURRENT: '※計測中の時間帯と重なるため、設定できません。',
+    NOT_FOUND: '※記録が見つかりませんでした。\n画面を開き直してください。',
+}
 
 type TimeField = 'startTime' | 'endTime'
 type TimeUnit = 'hours' | 'minutes'
@@ -35,9 +42,6 @@ export function TodayTab(){
         if(error !== null) setWarning(error)
         
     }
-    useEffect(() => {
-        console.log(warning)
-    },[warning])
 
     return (
         <div className="c-content-outer">
@@ -184,6 +188,16 @@ export function TodayTab(){
                 <div className="p-today__caution-inner">
                     <button><img src="./images/icon_close.svg" alt="" /></button>
                     <p>サイドバーから案件を追加してください</p>
+                </div>
+            </div>
+        )}
+        {warning !== null && (
+            <div className="p-today__caution">
+                <div className="p-today__caution-inner">
+                    <button onClick={() => setWarning(null)}>
+                        <img src="./images/icon_close.svg" alt="閉じる" />
+                    </button>
+                    <p className='message'>{WARNING_MESSAGES[warning]}</p>
                 </div>
             </div>
         )}
