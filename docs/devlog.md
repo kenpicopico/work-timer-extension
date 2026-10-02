@@ -1,6 +1,6 @@
 ## 2026-10-01
-- やったこと
-今日の記録(todaySegments)の編集機能の実装。(storage.tsのupdateSegment())
+### やったこと
+- 今日の記録(todaySegments)の編集機能の実装。(storage.tsのupdateSegment())
 編集後のsegmentをeditedとして、開始時間(edited.startTime)と終了時間(edited.endTime)のエラーを出しわけ。
 ①開始時刻>終了時刻
 ②未来の時刻を指定していないか
@@ -8,13 +8,33 @@
 ④現在記録中(currentSegment)との重なりがないか
 →問題なければ記録を更新
 
-コンポーネント側でupdateSegment()の呼び出し
+- コンポーネント側でupdateSegment()の呼び出し
 handleTimeChange()の中でupdateSegmmentを呼び出してerrorを表示(今回はconsoleにエラーの種類を出すところまで)
 開始の時(00)と分(00)、終了の時(00)と分(00)で、それぞれ変更できる仕様のため、TimeDropdownというコンポーネントを作り、propsを使ってそれぞれに値を投げる。投げる値はvalue,options,onSelect。valueは表示する元の値。optionsはプルダウンの選択肢の配列。onSelectはhandleChangeに引数を渡した関数。
 クリックによるプルダウンの開閉、コンテント外のクリックによる閉じる機能はTimeDropdown内のstateとuseEffectで管理。
 
--学び
+### 学び
 同じ機能（時間をクリックしたらプルダウンが出て、選択して値が変更される）を一つのコンポーネントにまとめて、propsを使って簡略化する考え。
 const HOURS = Array.from({ length: 24 }, (_, i) => i) 0~23まで並んだ配列。
 .some(other => {})。falseかtrueになるので、今回はif文の条件の中で使用。
 if(segments.some(other => other.id !== id && ~ &&)) return ~
+
+
+## 2026-10-02
+### やったこと
+- 今日の記録の時間を変更した際のエラーの種類別の出しわけ。
+一つにまとめることでコードを短縮化できた。
+
+- 今日の記録の削除機能の追加。
+削除確認モーダルを用意して、クリックミスでのデータ削除を回避。コンポーネントを分けることでコードも見やすくしました。
+
+- 今日の記録のクライアントと案件の変更機能の追加。
+自作プルダウンに案件があるクライアント、クライアントに紐づいている案件を設定。updateSegment()を利用して変更するようにしました。
+
+- 今日の記録一覧の最後にcurrentSegmentの情報を表示
+現在記録している場合は、最後にその詳細を表示するようにしました。表示するのみで編集は不可。記録中なのが視覚的に確認できます。idlingの場合は表示されません。
+
+### 気づいた問題と解決策
+問題：idlingに切り替わる時間がなぜか60秒（デフォルト）になっていた。
+Chrome拡張機能のテスト段階で、service_workerに設定しているjsを更新した場合は、一度windowを閉じて、npm run buildして、chrome://extensions/でリロードすると、反映される。（スーパーリロードでは更新されない）
+また、chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS)はonInstalledの中に入れていたが、外に出すことで、立ち上がるたびにセットされ、デフォルトの60秒がセットされることを防げる。
