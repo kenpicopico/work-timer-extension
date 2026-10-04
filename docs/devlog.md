@@ -38,3 +38,18 @@ if(segments.some(other => other.id !== id && ~ &&)) return ~
 問題：idlingに切り替わる時間がなぜか60秒（デフォルト）になっていた。
 Chrome拡張機能のテスト段階で、service_workerに設定しているjsを更新した場合は、一度windowを閉じて、npm run buildして、chrome://extensions/でリロードすると、反映される。（スーパーリロードでは更新されない）
 また、chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS)はonInstalledの中に入れていたが、外に出すことで、立ち上がるたびにセットされ、デフォルトの60秒がセットされることを防げる。
+
+## 2026-10-04
+###やったこと
+- 日を跨いだ記録を2つに分けて保存する機能の追加
+今まで23:00~翌1:00の記録の場合、今日の分として2時間カウントされていたが、23:00~24:00、0:00~1:00の記録に分けて保存するようにしました。
+storage.tsにsplitByDay()を作ってそれをfinalizeCurrentSegment()の中で使って保存する流れです。
+
+- 「記録の追加」機能の実装
+今日の記録に新しい記録をボタン一つで追加する機能を実装しました。1分間の記録をデフォルトの案件で追加するようにしています。
+追加するsegmentを作るためにstartTimeをどう設定するかが難しかったです。
+
+### 難しかった点
+任意の点cursorを用意して、それをwhileを使って「条件を満たす限り繰り返す」特性をうまく使ってstartTimeとendTimeをそれぞれ抽出する発想が難しかったです。
+
+
