@@ -4,13 +4,14 @@ import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
 import { useTodayRecords } from '../../../../hooks/useTodayRecords';
 import { useProjectContext } from '../../../../contexts/ProjectContext';
 import { useClientBreakdown } from '../../../../hooks/useClientBreakdown';
-import { updateSegment, deleteSegment, type Segment, type SegmentError } from '../../../../utils/storage';
+import { updateSegment, deleteSegment, findFreeSlot, addNewSegment, type Segment, type SegmentError } from '../../../../utils/storage';
 import { useState } from 'react';
 import { TimeDropdown } from './TimeDropdown';
 import { SegmentDeleteModal } from './SegmentDeleteModal/SegmentDeleteModal';
 import { useClientContext } from '../../../../contexts/ClientContext';
 import { SelectDropdown } from './SelectDropdown';
 import { useTrackingContext } from '../../../../contexts/TrackingContext';
+import { useSelectionContext } from '../../../../contexts/SelectionContext';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
@@ -20,6 +21,8 @@ const WARNING_MESSAGES: Record<SegmentError, string> = {
     OVERLAP: '※他の記録の時間帯と重なるため、設定できません。',
     OVERLAP_CURRENT: '※計測中の時間帯と重なるため、設定できません。',
     NOT_FOUND: '※記録が見つかりませんでした。\n画面を開き直してください。',
+    NO_FREE_SLOT: '※空き時間がないため、記録を追加できません。',
+    NO_PROJECT: '※記録を追加するには案件が必要です。\nサイドバーから案件を追加してください。'
 }
 
 type TimeField = 'startTime' | 'endTime'
@@ -32,6 +35,7 @@ export function TodayTab(){
     const { clients } = useClientContext()
     const { clientBreakdown } = useClientBreakdown(todaySegments)
     const { currentSegment } = useTrackingContext()
+    const { projectId } = useSelectionContext()
 
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
     const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
@@ -70,6 +74,19 @@ export function TodayTab(){
     const newMinutes = currentSegment === null ? '' : String(new Date(currentSegment.startTime).getMinutes()).padStart(2, '0')
     const currentSegmentProject = projects.find(p => p.id === currentSegment?.projectId)
     const currentSegmentClient = clients.find(c => c.id === currentSegmentProject?.clientId)
+
+    const handleAddSegment = async () => {
+        if(projectId === null){
+            setWarning('NO_PROJECT')
+            return
+        }
+        const startTime = findFreeSlot(todayStartMs, todaySegments, currentSegment)
+        if(startTime === null) {
+            setWarning('NO_FREE_SLOT')
+            return 
+        }
+        await addNewSegment(startTime, projectId)
+    }
 
 
     return (
@@ -222,7 +239,7 @@ export function TodayTab(){
                             )}
                             
                         </ul>
-                        <button className="p-today__details-add"><img src="./images/icon_plus.svg" alt="" />記録を追加</button>
+                        <button className="p-today__details-add" onClick={handleAddSegment}><img src="./images/icon_plus.svg" alt="" />記録を追加</button>
                     </div>
                 </div>
             </div>

@@ -84,6 +84,8 @@ export type SegmentError =
     | 'OVERLAP' 
     | 'OVERLAP_CURRENT' 
     | 'NOT_FOUND'
+    | 'NO_FREE_SLOT'
+    | 'NO_PROJECT'
 
 export const updateSegment = async (id: number, changes: Partial<Segment>): Promise<SegmentError | null> => {
     const now = Date.now()
@@ -128,3 +130,29 @@ export const deleteSegment = async (id:number) => {
     await chrome.storage.local.set({'segments':newSegments})
 }
 
+export const findFreeSlot = (todayStartMs:number, segments:Segment[], currentSegment:Segment | null) => {
+    const now = Date.now()
+    const ONE_MINUTE = 60 * 1000
+
+    // 確定済みの記録に、進行中の記録（終了は「今」）を加えて、同じ形で調べる
+    const occupied = [...segments]
+    if (currentSegment !== null) {
+        occupied.push({ ...currentSegment, endTime: now })
+    }
+
+    let cursor = todayStartMs
+
+    while (cursor + ONE_MINUTE <= now) {
+        const overlapping = occupied.find(other =>
+            cursor < (other.endTime ?? now) && other.startTime < cursor + ONE_MINUTE
+        )
+        if (overlapping === undefined) return cursor
+        cursor = overlapping.endTime ?? now
+    }
+    return null
+}
+
+export const addNewSegment = async (startTime: number, projectId:number) => {
+    const newSegment : Segment = { id : Date.now(), startTime : startTime, endTime : startTime + (60 * 1000), projectId : projectId, status : 'working'}
+    await addSegment(newSegment)
+}
