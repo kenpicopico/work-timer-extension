@@ -30,6 +30,22 @@ export const addSegment = async ( segment : Segment) => {
     await chrome.storage.local.set({'segments': newSegments})
 }
 
+const splitByDay = (startTime:number, endTime:number) => {
+    const parts : { startTime : number, endTime : number}[] = []
+    let cursor = startTime
+
+    while( cursor < endTime ){
+        const nextMidNight = new Date(cursor)
+        nextMidNight.setHours(0,0,0,0)
+        nextMidNight.setDate(nextMidNight.getDate() + 1)
+
+        const partEnd = Math.min(nextMidNight.getTime(), endTime)
+        parts.push({ startTime : cursor, endTime : partEnd})
+        cursor = partEnd
+    }
+    return parts
+}
+
 //CSのendTimeを更新して、segmentsに追加、新しいCSを保存
 export const finalizeCurrentSegment = async (endTime : number, nextCurrentSegment : Segment | null) => {
     const currentSegment = await getCurrentSegment()
@@ -37,9 +53,16 @@ export const finalizeCurrentSegment = async (endTime : number, nextCurrentSegmen
         await setCurrentSegment(nextCurrentSegment)
         return
     }
-    const additionalSegment = {...currentSegment, endTime : endTime }
-    if(additionalSegment.status === 'working'){
-        await addSegment(additionalSegment)
+    if(currentSegment.status === 'working'){
+        const parts = splitByDay(currentSegment.startTime, endTime)
+        for(const [i, part] of parts.entries()){
+            await addSegment({
+                ...currentSegment,
+                id : currentSegment.id + i,
+                startTime : part.startTime,
+                endTime : part.endTime
+            })
+        }
     }
     await setCurrentSegment(nextCurrentSegment)
 }
