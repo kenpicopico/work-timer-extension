@@ -23,7 +23,7 @@ export function useTodayRecords(){
 
     const todayStartMs = todayStart.getTime()
     const todayEndMs = todayEnd.getTime()
-    const todaySegments = segments.filter((segment) => segment.startTime >= todayStartMs && segment.startTime < todayEndMs)
+    const todaySegments = segments.filter((segment) => segment.startTime >= todayStartMs && segment.startTime < todayEndMs).sort((a, b) => a.startTime - b.startTime)
 
     useEffect(() => {
         const loadSegments = async () => {
