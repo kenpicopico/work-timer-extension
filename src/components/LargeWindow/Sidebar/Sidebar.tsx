@@ -5,7 +5,9 @@ import { useProjectContext } from "../../../contexts/ProjectContext"
 import { useSelectionContext } from '../../../contexts/SelectionContext'
 import { useEffect, useState, useRef } from 'react'
 import { DeleteConfirmModal } from './DeleteConfirmModal/DeleteConfirmModal'
-import { generateColorVariations } from '../../../utils/color'
+import { getProjectColors,findUnusedColor } from '../../../utils/color'
+import { WarningPopup } from '../../common/WarningPopup'
+import { COLOR_PALETTE } from '../../../utils/color'
 
 type SidebarProps = {
     activeTab : ActiveTab
@@ -19,11 +21,15 @@ export type DeleteTarget =
     | { type : 'project', id : number, name : string}
     | null
 
-
+type SidebarWarning = 'CLIENT_LIMIT' | 'PROJECT_LIMIT'
+const SIDEBAR_WARNING_MESSAGES: Record<SidebarWarning, string> = {
+    CLIENT_LIMIT: '※クライアントは6件まで登録できます。',
+    PROJECT_LIMIT: '※案件は1クライアントにつき8件まで登録できます。',
+}
 
 export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProjectId}:SidebarProps){
-    const { clients, addClient, renameClient, deleteClient } = useClientContext()
-    const { projects, addProject, renameProject, deleteProject } = useProjectContext()
+    const { clients, addClient, renameClient, deleteClient, changeClientColor } = useClientContext()
+    const { projects, addProject, renameProject, deleteProject, changeProjectColor } = useProjectContext()
     const { projectId, selectProject } = useSelectionContext()
 
     const [ editingClientId, setEditingClientId ] = useState<number | null>(null)
@@ -34,6 +40,8 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
     const clientInputRef = useRef<HTMLInputElement>(null)
     const projectInputRef = useRef<HTMLInputElement>(null)
     const [ deleteTarget, setDeleteTarget ] = useState<DeleteTarget>(null)
+    const [ warning, setWarning ] = useState<SidebarWarning | null>(null)
+    const [ openPaletteClientId, setOpenPaletteClientId] = useState<number | null>(null)
 
 
     const handleAddClient = () => {
@@ -48,8 +56,12 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                 break
             }
         }
-        const { id, color } = addClient(newClientName)
-        handleAddProject(id, color)
+        const added = addClient(newClientName)
+        if (added === null) {
+            setWarning('CLIENT_LIMIT')
+            return
+        }
+        handleAddProject(added.id, added.color)
     }
 
     const handleAddProject = (id:number, color:string) => {
@@ -64,15 +76,15 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                 break
             }
         }
-        const colorPalettes = generateColorVariations(color)
-        let newColor = ''
-        for(let i = 0; i < colorPalettes.length; i++){
-            const candidateColor = colorPalettes[i]
-            const exists = projects.find(project => project.color === candidateColor)
-            if(!exists){
-                newColor = candidateColor
-                break
-            }
+
+        const paletteProjects = getProjectColors(color)
+        if (paletteProjects === undefined) return
+
+        const usedColors = projects.filter(p => p.clientId === id).map(p => p.color)
+        const newColor = findUnusedColor(paletteProjects, usedColors)
+        if (newColor === undefined) { 
+            setWarning('PROJECT_LIMIT')
+            return 
         }
 
         addProject(newProjectName,id,newColor)
@@ -153,6 +165,11 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
         })
         deleteClient(id)
     }
+
+    const handleTogglePalette = (id:number) => {
+        setOpenPaletteClientId(openPaletteClientId === id ? null : id)
+    }
+    const clientPalette = COLOR_PALETTE.map(cp => cp.client)
     
 
     return (
@@ -163,10 +180,33 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
             <div className='p-sidebar__clients'>
                 {clients.map((client) => {
                     const clientsProjects = projects.filter((project) => project.clientId === client.id)
+                    const otherClientColors = clients.filter(c => c.id !== client.id).map(c => c.color)
                     return (
                         <div key={client.id}>
                             <p className={`p-sidebar__client-name ${ editingClientId === client.id ? 'is-edit' : ''}`}>
-                                <span className='color' style={{ background : client.color }} />
+                                <button onClick={() => handleTogglePalette(client.id)}>
+                                    <span className='color' style={{ background : client.color }} />
+                                </button>
+                                {openPaletteClientId === client.id && (
+                                    <div className='palette'>
+                                        {clientPalette.map(cp => (
+                                            <button 
+                                                key={cp} 
+                                                type='button' 
+                                                style={{ background : cp}} 
+                                                className={`color ${client.color === cp ? 'is-current' : ''} ${otherClientColors.includes(cp) ? 'is-used' : ''}`} 
+                                                onClick={() => {
+                                                    const projectColors = getProjectColors(cp)
+                                                    if(projectColors === undefined) return
+                                                    changeClientColor(client.id,cp)
+                                                    changeProjectColor(client.id,projectColors)
+                                                    setOpenPaletteClientId(null)
+                                                }} 
+                                                disabled={client.color === cp || otherClientColors.includes(cp)}
+                                            ></button>
+                                        ))}
+                                    </div>
+                                )}
                                 { editingClientId === client.id ? (
                                     <input 
                                         className="name"
@@ -259,6 +299,13 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                 />
                 )
             }
+
+            {warning !== null && (
+                <WarningPopup
+                    message={SIDEBAR_WARNING_MESSAGES[warning]}
+                    onClose={() => setWarning(null)}
+                />
+            )}
         </div>
     )
 }

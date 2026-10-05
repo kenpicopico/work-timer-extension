@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { COLOR_PALETTE, findUnusedColor } from "../utils/color"
 
 export type Client = {
     id:number
@@ -8,9 +9,10 @@ export type Client = {
 
 export type ClientContextType = {
     clients: Client[]
-    addClient: (name:string) => { id: number, color: string }
+    addClient: (name:string) => { id: number, color: string } | null
     renameClient: (id:number,name:string)  => void
     deleteClient: (id:number) => void
+    changeClientColor: (id:number, color:string) => void
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(undefined)
@@ -31,18 +33,13 @@ export function ClientProvider({children}:ClientProviderProps){
     const [clients, setClients] = useState<Client[]>([])
     const [isLoaded, setIsLoaded] = useState<boolean>(false)
 
-    const addClient = (name: string): { id: number, color: string } => {
+    const addClient = (name: string): { id: number, color: string } | null => {
         const newId = Date.now()
-        const colorPalette = ['#FF0000', '#FBFF00', '#0DFF00', '#005DFF', '#AA00FF', '#FF00EE', '#C2C2C2']
-        let newColor = colorPalette[0]
-        for(let i = 0 ; i < colorPalette.length; i++){
-            const candidateColor = colorPalette[i]
-            const exists = clients.find((client) => client.color === candidateColor)
-            if(!exists){
-                newColor = candidateColor
-                break
-            }
-        }
+        const colors = clients.map(c => c.color)
+        const colorPalette = COLOR_PALETTE.map(p => p.client)
+        const newColor = findUnusedColor(colorPalette, colors)
+        if (newColor === undefined) return null
+
         const newClient = { id : newId, name : name, color : newColor}
         setClients(prev => [...prev, newClient])
         return {
@@ -57,6 +54,10 @@ export function ClientProvider({children}:ClientProviderProps){
 
     const deleteClient = (id:number) => {
         setClients(prev => prev.filter(client => client.id !== id))
+    }
+
+    const changeClientColor = (id:number, color:string) => {
+        setClients(prev => prev.map(client => client.id === id ? {...client, color:color} : client))
     }
 
     useEffect(() => {
@@ -84,7 +85,7 @@ export function ClientProvider({children}:ClientProviderProps){
     },[clients])
     
     return (
-        <ClientContext.Provider value={{clients,addClient,renameClient,deleteClient}}>
+        <ClientContext.Provider value={{clients,addClient,renameClient,deleteClient,changeClientColor}}>
             {children}
         </ClientContext.Provider>
     )

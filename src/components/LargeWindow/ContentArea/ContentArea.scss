@@ -442,6 +442,7 @@
         border-radius: 8px;
         background: $content-main-bg;
         border: 1px solid $content-text;
+        z-index: 10;
         &-inner{
             width: 100%;
             padding: 50px 0;

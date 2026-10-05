@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { generateColorVariations } from '../utils/color'
+import { COLOR_PALETTE } from '../utils/color'
 
 export type Project = {
     id : number
@@ -13,6 +13,7 @@ export type ProjectContextType = {
     addProject : (name:string,clientId:number,color:string) => void
     renameProject : (id:number,name:string) => void
     deleteProject : (id:number) => void
+    changeProjectColor : (clientId:number, colors: readonly string[]) => void
 }
 
 export const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
@@ -49,11 +50,20 @@ export function ProjectProvider({children}:ProjectProviderProps){
         setProjects(prev => prev.filter(project => project.id !== id))
     }
 
+    const changeProjectColor = (clientId:number, colors: readonly string[]) => {
+        setProjects(prev => {
+            const ids = projects.filter(p => p.clientId === clientId).map(p => p.id)
+            return prev.map(p => {
+                const index = ids.indexOf(p.id)
+                return index === -1 ? p : {...p, color : colors[index]}
+            })
+        })
+    }
+
     useEffect(() => {
         const loadProjects = async () => {
             const result = await chrome.storage.local.get('projects')
-            const colors = generateColorVariations('#FF0000')
-            const loaded = (result.projects ?? [{ id : 101, name : '案件A', clientId : 1, color : colors[0]}]) as Project[]
+            const loaded = (result.projects ?? [{ id : 101, name : '案件A', clientId : 1, color : COLOR_PALETTE[0].projects[0] }]) as Project[]
             setProjects(loaded)
             setIsLoaded(true)
         }
@@ -69,7 +79,7 @@ export function ProjectProvider({children}:ProjectProviderProps){
     },[projects,isLoaded])
 
     return (
-        <ProjectContext.Provider value={{projects, addProject, renameProject, deleteProject}}>
+        <ProjectContext.Provider value={{projects, addProject, renameProject, deleteProject, changeProjectColor}}>
             {children}
         </ProjectContext.Provider>
     )

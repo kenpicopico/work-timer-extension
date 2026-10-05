@@ -12,6 +12,7 @@ import { useClientContext } from '../../../../contexts/ClientContext';
 import { SelectDropdown } from './SelectDropdown';
 import { useTrackingContext } from '../../../../contexts/TrackingContext';
 import { useSelectionContext } from '../../../../contexts/SelectionContext';
+import { WarningPopup } from '../../../common/WarningPopup';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const MINUTES = Array.from({ length: 60}, (_, i) => i)
@@ -259,14 +260,7 @@ export function TodayTab(){
             </div>
         )}
         {warning !== null && (
-            <div className="p-today__caution">
-                <div className="p-today__caution-inner">
-                    <button onClick={() => setWarning(null)}>
-                        <img src="./images/icon_close.svg" alt="閉じる" />
-                    </button>
-                    <p className='message'>{WARNING_MESSAGES[warning]}</p>
-                </div>
-            </div>
+            <WarningPopup message={WARNING_MESSAGES[warning]} onClose={() => setWarning(null)} />
         )}
         {deleteTargetId !== null && (
             <SegmentDeleteModal 
