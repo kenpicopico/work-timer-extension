@@ -34,7 +34,7 @@ export function LargeWindow({onShrink}:LargeWindowProps){
             <div className='p-large'>
                 <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} viewingProjectId={viewingProjectId} setViewingProjectId={setViewingProjectId} />
                 <ContentArea activeTab={activeTab} viewingProjectId={viewingProjectId} />
-                <button className='p-large__shrink-button' onClick={onShrink}><img src="./images/icon_expand.svg" alt="" /></button>
+                <button className='p-large__shrink-button c-tooltip__shrink' data-tooltip="最小化" onClick={onShrink}><img src="./images/icon_expand.svg" alt="" /></button>
             </div>
         </>
     )

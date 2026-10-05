@@ -1,0 +1,49 @@
+@use "../../global" as *;
+.c-tooltip {
+    position: relative;
+    &::after {
+        content: attr(data-tooltip);
+        padding: 6px 12px;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: $content-text;
+        background: $content-gray;
+        border-radius: 4px;
+        border: 1px solid $selected-gray;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+    }
+
+    &:hover::after {
+        opacity: 1;
+    }
+}
+.c-tooltip__shrink {
+    position: relative;
+    &::after {
+        content: attr(data-tooltip);
+        padding: 6px 12px;
+        position: absolute;
+        top: -100%;
+        left: 0%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: $content-text;
+        background: $content-gray;
+        border-radius: 4px;
+        border: 1px solid $selected-gray;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+    }
+
+    &:hover::after {
+        opacity: 1;
+    }
+}

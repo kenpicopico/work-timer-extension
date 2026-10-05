@@ -113,7 +113,7 @@ export function SmallWindow({onExpand}:SmallWindowProps){
                     </ul>
                 </div>
             </div>
-            <button className="p-top__link" onClick={onExpand}><img src="./images/icon_open.svg" alt="開く" /></button>
+            <button className="p-top__link c-tooltip" data-tooltip="詳細" onClick={onExpand}><img src="./images/icon_open.svg" alt="開く" /></button>
         </section>
         <section className="p-top__bottom">
             <div className="p-top__times">

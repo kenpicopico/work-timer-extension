@@ -188,11 +188,11 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                                 )}
                                 
                                 <div className='p-sidebar__client-edits'>
-                                    <button onClick={() => handleAddProject(client.id,client.color)}><img src="./images/icon_plus.svg" alt="" /></button>
-                                    <button onClick={(e) => handleStartEditClient(e,client.id,client.name)}>
+                                    <button className='c-tooltip' data-tooltip="案件の追加" onClick={() => handleAddProject(client.id,client.color)}><img src="./images/icon_plus.svg" alt="" /></button>
+                                    <button className='c-tooltip' data-tooltip="名前の編集" onClick={(e) => handleStartEditClient(e,client.id,client.name)}>
                                         <img src="./images/icon_edit.svg" alt="" />
                                     </button>
-                                    <button onClick={() => setDeleteTarget({ type : 'client', id : client.id, name : client.name})}><img src="./images/icon_delete_white.svg" alt="" /></button>
+                                    <button className='c-tooltip' data-tooltip="削除" onClick={() => setDeleteTarget({ type : 'client', id : client.id, name : client.name})}><img src="./images/icon_delete_white.svg" alt="" /></button>
                                 </div>
                             </p>
                             <div className='p-sidebar__projects'>
@@ -228,9 +228,11 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                                         <span className='name' onDoubleClick={(e) => handleStartEditProject(e,clientProject.id,clientProject.name)}>{clientProject.name}</span>
                                     )}
                                     <div className='p-sidebar__project-edits'>
-                                        <button onClick={() => selectProject(clientProject.id)}><img src="./images/icon_pin.svg" alt="" /></button>
-                                        <button onClick={(e) =>handleStartEditProject(e,clientProject.id,clientProject.name)}><img src="./images/icon_edit.svg" alt="" /></button>
-                                        <button onClick={() => setDeleteTarget({ type : 'project', id : clientProject.id, name : clientProject.name })}><img src="./images/icon_delete_white.svg" alt="" /></button>
+                                        {clientProject.id !== projectId && (
+                                            <button className='c-tooltip' data-tooltip="デフォルトに設定" onClick={() => selectProject(clientProject.id)}><img src="./images/icon_pin.svg" alt="" /></button>
+                                        )}
+                                        <button className='c-tooltip' data-tooltip="名前の編集" onClick={(e) =>handleStartEditProject(e,clientProject.id,clientProject.name)}><img src="./images/icon_edit.svg" alt="" /></button>
+                                        <button className='c-tooltip' data-tooltip="削除" onClick={() => setDeleteTarget({ type : 'project', id : clientProject.id, name : clientProject.name })}><img src="./images/icon_delete_white.svg" alt="" /></button>
                                     </div>
                                 </button>
                                 ))}
