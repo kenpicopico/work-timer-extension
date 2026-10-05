@@ -34,7 +34,7 @@ export function useClientBreakdown(segments:Segment[]) : { clientBreakdown: Clie
 
     const clientBreakdown = clients.map(client => {
         const clientProjects = projectBreakdown
-            .filter(pb => pb.clientId === client.id)
+            .filter(pb => pb.clientId === client.id && pb.totalSeconds > 0)
             .map(pb =>({
                 projectId : pb.projectId,
                 projectColor : pb.projectColor,
@@ -47,7 +47,7 @@ export function useClientBreakdown(segments:Segment[]) : { clientBreakdown: Clie
             totalSeconds,
             projects : clientProjects
         }
-    })
+    }).filter(cb => cb.totalSeconds > 0)
 
     return {
         clientBreakdown
