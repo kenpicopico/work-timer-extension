@@ -131,6 +131,13 @@ export function TodayTab(){
                                 />
                             )
                         })}
+                        <p className='am0'>0:00</p>
+                        <p className='am4'>4:00</p>
+                        <p className='am8'>8:00</p>
+                        <p className='am12'>12:00</p>
+                        <p className='pm4'>16:00</p>
+                        <p className='pm8'>20:00</p>
+                        <p className='pm12'>24:00</p>
                     </div>
                     <ul className="p-today__bd">
                         {clientBreakdown.map((cb) => (
