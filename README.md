@@ -49,7 +49,7 @@ STARTを押すだけで作業時間を記録し、「どのクライアントの
 
 ## 開発ログ
 
-docs/devlog.md
+[docs/devlog.md](docs/devlog.md)
 Zenn:https://zenn.dev/kengohidaka
 X:https://x.com/Keng0_026
 
