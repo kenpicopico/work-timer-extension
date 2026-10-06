@@ -33,13 +33,20 @@
                 font-size: 30px;
                 font-weight: 500;
                 color: $content-text;
-            }
-            .color{
-                width: 20px;
-                height: 20px;
-                border-radius: 20px;
-                margin-right: 8px;
-                display: block;
+                .color{
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 20px;
+                    margin-right: 8px;
+                    display: block;
+                }
+                .project-name{
+                    max-width: 420px;
+                    font-size: 26px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
             }
             .buttons{
                 display: flex;
