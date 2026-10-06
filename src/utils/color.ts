@@ -1,27 +1,27 @@
 export const COLOR_PALETTE = [
     { // 赤系
         client: '#FF0000',
-        projects: ['#FF0000', '#FF4D4D', '#FF8080', '#CC0000', '#FF6666', '#990000', '#FFB3B3', '#E60000'],
+        projects: ['#FFADAC', '#FF918E', '#FF6969', '#FF4D4D', '#FF2222', '#CE0000', '#8B0000', '#5C0000'],
+    },
+    { // オレンジ系
+        client: '#FF7700',
+        projects: ['#FFC796', '#FFB472', '#FFA353', '#FF9233', '#FF8113', '#D26200', '#AA4F00', '#753700'],
     },
     { // 黄系
-        client: '#FBFF00',
-        projects: ['#FBFF00', '#FDFF66', '#FEFF99', '#C9CC00', '#FCFF4D', '#999B00', '#FEFFCC', '#E3E600'],
+        client: '#FFFF00',
+        projects: ['#FFFFB0', '#FFFF7F', '#FFFF4A', '#FFFF18', '#CBCB00', '#9F9F00', '#757500', '#4E4E00'],
     },
     { // 緑系
-        client: '#0DFF00',
-        projects: ['#0DFF00', '#5CFF52', '#99FF93', '#0AC700', '#3DFF33', '#078000', '#CCFFC9', '#0BE600'],
+        client: '#008000',
+        projects: ['#B2FFB2', '#7FFF7F', '#43FF43', '#00FF00', '#00C600', '#009700', '#386C38', '#004800'],
     },
     { // 青系
-        client: '#005DFF',
-        projects: ['#005DFF', '#4D93FF', '#80B0FF', '#0046C7', '#3378FF', '#003399', '#B3D0FF', '#0052E6'],
-    },
-    { // 紫系
-        client: '#AA00FF',
-        projects: ['#AA00FF', '#C44DFF', '#D580FF', '#8800CC', '#BB33FF', '#660099', '#E6B3FF', '#9900E6'],
+        client: '#0000FF',
+        projects: ['#D1D1FF', '#A0A0FF', '#7272FF', '#4444FF', '#2020FF', '#52C5FF', '#00AAFF', '#0070A8'],
     },
     { // ピンク系
         client: '#FF00EE',
-        projects: ['#FF00EE', '#FF4DF3', '#FF80F6', '#CC00BE', '#FF33F1', '#990090', '#FFB3FA', '#E600D6'],
+        projects: ['#FFD6FC', '#FFB2FA', '#FF88F7', '#FF59F4', '#FF29F1', '#BC00AF', '#9A4695', '#82179F'],
     },
 ] as const
 

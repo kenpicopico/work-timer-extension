@@ -8,6 +8,7 @@ import { DeleteConfirmModal } from './DeleteConfirmModal/DeleteConfirmModal'
 import { getProjectColors,findUnusedColor } from '../../../utils/color'
 import { WarningPopup } from '../../common/WarningPopup'
 import { COLOR_PALETTE } from '../../../utils/color'
+import { ColorPalette } from '../../common/ColorPalette'
 
 type SidebarProps = {
     activeTab : ActiveTab
@@ -29,7 +30,7 @@ const SIDEBAR_WARNING_MESSAGES: Record<SidebarWarning, string> = {
 
 export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProjectId}:SidebarProps){
     const { clients, addClient, renameClient, deleteClient, changeClientColor } = useClientContext()
-    const { projects, addProject, renameProject, deleteProject, changeProjectColor } = useProjectContext()
+    const { projects, addProject, renameProject, deleteProject, changeProjectColor, updateProjectColor } = useProjectContext()
     const { projectId, selectProject } = useSelectionContext()
 
     const [ editingClientId, setEditingClientId ] = useState<number | null>(null)
@@ -42,6 +43,7 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
     const [ deleteTarget, setDeleteTarget ] = useState<DeleteTarget>(null)
     const [ warning, setWarning ] = useState<SidebarWarning | null>(null)
     const [ openPaletteClientId, setOpenPaletteClientId] = useState<number | null>(null)
+    const [ openPaletteProjectId, setOpenPaletteProjectId ] = useState<number | null>(null)
 
 
     const handleAddClient = () => {
@@ -168,9 +170,27 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
 
     const handleTogglePalette = (id:number) => {
         setOpenPaletteClientId(openPaletteClientId === id ? null : id)
+        setOpenPaletteProjectId(null)
     }
     const clientPalette = COLOR_PALETTE.map(cp => cp.client)
+
+    const handleToggleProjectPalette = (id:number) => {
+        setOpenPaletteProjectId(openPaletteProjectId === id ? null : id)
+        setOpenPaletteClientId(null)
+    }
     
+    useEffect(() => {
+        const handleOutside = (e:MouseEvent) => {
+            const target = e.target as HTMLElement
+            if(target.closest('.js-palette')) return
+            setOpenPaletteProjectId(null)
+            setOpenPaletteClientId(null)
+        }
+        document.addEventListener('mousedown', handleOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleOutside)
+        }
+    },[])
 
     return (
         <div className="p-sidebar">
@@ -181,31 +201,26 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                 {clients.map((client) => {
                     const clientsProjects = projects.filter((project) => project.clientId === client.id)
                     const otherClientColors = clients.filter(c => c.id !== client.id).map(c => c.color)
+                    const projectPalette = getProjectColors(client.color)
                     return (
                         <div key={client.id}>
                             <p className={`p-sidebar__client-name ${ editingClientId === client.id ? 'is-edit' : ''}`}>
-                                <button onClick={() => handleTogglePalette(client.id)}>
+                                <button className='js-palette' onClick={() => handleTogglePalette(client.id)}>
                                     <span className='color' style={{ background : client.color }} />
                                 </button>
                                 {openPaletteClientId === client.id && (
-                                    <div className='palette'>
-                                        {clientPalette.map(cp => (
-                                            <button 
-                                                key={cp} 
-                                                type='button' 
-                                                style={{ background : cp}} 
-                                                className={`color ${client.color === cp ? 'is-current' : ''} ${otherClientColors.includes(cp) ? 'is-used' : ''}`} 
-                                                onClick={() => {
-                                                    const projectColors = getProjectColors(cp)
-                                                    if(projectColors === undefined) return
-                                                    changeClientColor(client.id,cp)
-                                                    changeProjectColor(client.id,projectColors)
-                                                    setOpenPaletteClientId(null)
-                                                }} 
-                                                disabled={client.color === cp || otherClientColors.includes(cp)}
-                                            ></button>
-                                        ))}
-                                    </div>
+                                    <ColorPalette 
+                                        palette={clientPalette} 
+                                        color={client.color} 
+                                        otherColors={otherClientColors} 
+                                        onSelect={(color) => {
+                                            const projectColors = getProjectColors(color)
+                                            if(projectColors === undefined) return
+                                            changeClientColor(client.id,color)
+                                            changeProjectColor(client.id,projectColors)
+                                            setOpenPaletteClientId(null)
+                                        }} 
+                                    />
                                 )}
                                 { editingClientId === client.id ? (
                                     <input 
@@ -236,46 +251,66 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                                 </div>
                             </p>
                             <div className='p-sidebar__projects'>
-                                {clientsProjects.map((clientProject) => (
-                                <button
-                                    key={clientProject.id} 
-                                    onClick={() => handleToggleProjectId(clientProject.id)} 
-                                    className={`p-sidebar__project ${ clientProject.id === viewingProjectId && activeTab === 'projectDetail' ? 'is-selected' : '' } ${ editingProjectId === clientProject.id ? 'is-edit' : ''}`}
-                                >
-                                    <img 
-                                        style={{ visibility : clientProject.id === projectId ? 'visible' : 'hidden'}} 
-                                        className='pin' 
-                                        src='./images/icon_pin.svg' 
-                                    />
-                                    <span className='color' style={{background : clientProject.color}} />
-                                    {editingProjectId === clientProject.id ? (
-                                        <input 
-                                            className='name'
-                                            type="text" 
-                                            ref={projectInputRef}
-                                            value={newProjectName} 
-                                            onChange={(e) => setNewProjectName(e.target.value)} 
-                                            onClick={(e) => e.stopPropagation()} 
-                                            onKeyDown={(e) => {
-                                                if(!isComposing && e.key === 'Enter'){
-                                                    handleConfirmProjectRename()
-                                                }
-                                            }}
-                                            onCompositionStart={() => setIsComposing(true)}
-                                            onCompositionEnd={() => setIsComposing(false)}
-                                        />
-                                    ): (
-                                        <span className='name' onDoubleClick={(e) => handleStartEditProject(e,clientProject.id,clientProject.name)}>{clientProject.name}</span>
-                                    )}
-                                    <div className='p-sidebar__project-edits'>
-                                        {clientProject.id !== projectId && (
-                                            <button className='c-tooltip' data-tooltip="デフォルトに設定" onClick={() => selectProject(clientProject.id)}><img src="./images/icon_pin.svg" alt="" /></button>
-                                        )}
-                                        <button className='c-tooltip' data-tooltip="名前の編集" onClick={(e) =>handleStartEditProject(e,clientProject.id,clientProject.name)}><img src="./images/icon_edit.svg" alt="" /></button>
-                                        <button className='c-tooltip' data-tooltip="削除" onClick={() => setDeleteTarget({ type : 'project', id : clientProject.id, name : clientProject.name })}><img src="./images/icon_delete_white.svg" alt="" /></button>
-                                    </div>
-                                </button>
-                                ))}
+                                {clientsProjects.map((clientProject) => {
+                                    const otherProjectColors = clientsProjects.filter(p => p.id !== clientProject.id).map(p => p.color)
+                                    return (
+                                        <div key={clientProject.id} className='p-sidebar__project'>
+                                            <button 
+                                                onClick={() => handleToggleProjectId(clientProject.id)} className={`btn ${ clientProject.id === viewingProjectId && activeTab === 'projectDetail' ? 'is-selected' : '' } ${ editingProjectId === clientProject.id ? 'is-edit' : ''}`}
+                                            >
+                                                <img
+                                                    style={{ visibility : clientProject.id === projectId ? 'visible' : 'hidden'}}
+                                                    className='pin'
+                                                    src='./images/icon_pin.svg'
+                                                />
+                                                <span
+                                                    className='color js-palette'
+                                                    style={{background : clientProject.color}}
+                                                    onClick={(e) => {
+                                                        handleToggleProjectPalette(clientProject.id)
+                                                        e.stopPropagation()
+                                                    }}
+                                                />
+                                                {editingProjectId === clientProject.id ? (
+                                                    <input
+                                                        className='name'
+                                                        type="text"
+                                                        ref={projectInputRef}
+                                                        value={newProjectName}
+                                                        onChange={(e) => setNewProjectName(e.target.value)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onKeyDown={(e) => {
+                                                            if(!isComposing && e.key === 'Enter'){
+                                                                handleConfirmProjectRename()
+                                                            }
+                                                        }}
+                                                        onCompositionStart={() => setIsComposing(true)}
+                                                        onCompositionEnd={() => setIsComposing(false)}
+                                                    />
+                                                ): (
+                                                    <span className='name' onDoubleClick={(e) => handleStartEditProject(e,clientProject.id,clientProject.name)}>{clientProject.name}</span>
+                                                )}
+                                                <div className='p-sidebar__project-edits'>
+                                                    {clientProject.id !== projectId && (
+                                                        <button className='c-tooltip' data-tooltip="デフォルトに設定" onClick={() => selectProject(clientProject.id)}><img src="./images/icon_pin.svg" alt="" /></button>
+                                                    )}
+                                                    <button className='c-tooltip' data-tooltip="名前の編集" onClick={(e) =>handleStartEditProject(e,clientProject.id,clientProject.name)}><img src="./images/icon_edit.svg" alt="" /></button>
+                                                    <button className='c-tooltip' data-tooltip="削除" onClick={() => setDeleteTarget({ type : 'project', id : clientProject.id, name : clientProject.name })}><img src="./images/icon_delete_white.svg" alt="" /></button>
+                                                </div>
+                                            </button>
+                                            {openPaletteProjectId === clientProject.id && (
+                                                <ColorPalette 
+                                                    palette={projectPalette} 
+                                                    color={clientProject.color} otherColors={otherProjectColors} 
+                                                    onSelect={(color) => {
+                                                        updateProjectColor(clientProject.id,color)
+                                                        setOpenPaletteProjectId(null)
+                                                    }} 
+                                                />
+                                            )}
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
                     )

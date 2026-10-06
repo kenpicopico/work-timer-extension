@@ -14,6 +14,7 @@ export type ProjectContextType = {
     renameProject : (id:number,name:string) => void
     deleteProject : (id:number) => void
     changeProjectColor : (clientId:number, colors: readonly string[]) => void
+    updateProjectColor: (projectId:number, color:string) => void
 }
 
 export const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
@@ -60,6 +61,12 @@ export function ProjectProvider({children}:ProjectProviderProps){
         })
     }
 
+    const updateProjectColor = (projectId:number, color:string) => {
+        setProjects(prev => prev.map(project => (
+            project.id === projectId ? {...project, color : color} : project
+        )))
+    }
+
     useEffect(() => {
         const loadProjects = async () => {
             const result = await chrome.storage.local.get('projects')
@@ -79,7 +86,7 @@ export function ProjectProvider({children}:ProjectProviderProps){
     },[projects,isLoaded])
 
     return (
-        <ProjectContext.Provider value={{projects, addProject, renameProject, deleteProject, changeProjectColor}}>
+        <ProjectContext.Provider value={{projects, addProject, renameProject, deleteProject, changeProjectColor, updateProjectColor}}>
             {children}
         </ProjectContext.Provider>
     )
