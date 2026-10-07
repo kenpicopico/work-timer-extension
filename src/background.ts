@@ -24,7 +24,6 @@ chrome.action.onClicked.addListener(() => {
 //操作の有無で送られるidleやactiveのステータスに合わせて、nextCurrentSegmentを作成し、CurrentSegmmentのendTimeを作成し、finalizeCurrentSegmentに渡す。
 chrome.idle.onStateChanged.addListener(async (newState) => {
     if(newState === 'idle'){
-        console.log('idle')
         const currentSegment = await getCurrentSegment()
         if(currentSegment === null){
             return

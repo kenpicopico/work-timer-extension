@@ -79,10 +79,6 @@ export function ClientProvider({children}:ClientProviderProps){
         }
         setLocalClients()
     },[clients,isLoaded])
-
-    useEffect(() => {
-        console.log('clients:', clients)
-    },[clients])
     
     return (
         <ClientContext.Provider value={{clients,addClient,renameClient,deleteClient,changeClientColor}}>

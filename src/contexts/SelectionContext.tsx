@@ -49,20 +49,14 @@ export function SelectionProvider({children}:SelectionProviderProps){
 
     useEffect(() => {
         const exists = projects.find(project => project.id === projectId)
-        console.log('projects:',projects)
         if(!exists){
             if(projects.length === 0){
                 setProjectId(null)
             } else {
                 setProjectId(projects[0].id)
-                console.log('projects[0].id:',projects[0].id)
             }
         }
     },[projects])
-
-    useEffect(() => {
-        console.log('projectId:', projectId)
-    },[projectId])
 
     return (
         <SelectionContext.Provider value={{projectId,selectProject}}>

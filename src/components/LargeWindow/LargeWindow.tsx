@@ -16,11 +16,6 @@ export function LargeWindow({onShrink}:LargeWindowProps){
     const { projects } = useProjectContext()
 
     useEffect(() => {
-        console.log('activeTab:', activeTab)
-        console.log('viewingProjectId:', viewingProjectId)
-    }, [activeTab, viewingProjectId])
-
-    useEffect(() => {
         if(viewingProjectId === null) return
         const exists = projects.find(project => project.id === viewingProjectId)
         if(!exists){
