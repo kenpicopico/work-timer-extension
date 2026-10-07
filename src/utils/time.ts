@@ -14,6 +14,7 @@ export function formatElapsedTime(elapsedSeconds : number){
 
 }
 
+//秒を時間:分に変換（9000秒　→ 2:30）
 export function formatHoursMinutes(totalSeconds : number){
     const hour = Math.floor(totalSeconds / 3600)
     const minute = Math.floor((totalSeconds % 3600) / 60)

@@ -15,7 +15,7 @@ export function ContentArea({activeTab,viewingProjectId}: ContentAreaProps){
         <div className='p-content'>
             {activeTab === 'today' && <TodayTab />}
             {activeTab === 'stats' && <StatsTab />}
-            {activeTab === 'projectDetail' && <ProjectDetailTab viewingProjectId={viewingProjectId} />}
+            {activeTab === 'projectDetail' && viewingProjectId !== null && <ProjectDetailTab viewingProjectId={viewingProjectId} />}
             {activeTab === 'settings' && <SettingsTab />}
         </div>
     )

@@ -1,15 +1,27 @@
 import { useProjectContext } from "../../../../contexts/ProjectContext"
+import { useSegments } from "../../../../hooks/useSegments"
+import { filterSegments, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
+import { formatHoursMinutes } from "../../../../utils/time"
 
 type ProjectDetailProps = {
-    viewingProjectId : number | null
+    viewingProjectId : number
 }
 
 export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const { projects } = useProjectContext()
     const project = projects.find(project => project.id === viewingProjectId)
 
-    const month = new Date(Date.now()).getMonth()
-    const thisMonth = `${month + 1}月`
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() +1
+
+    const segments = useSegments()
+
+    //合計時間と稼働日数
+    const period = getMonthPeriod(year,month)
+    const projectsSegments = filterSegments(segments,[viewingProjectId],period)
+    const { totalSeconds, workDays } = summarizeSegments(projectsSegments)
+    const totalTimeText = formatHoursMinutes(totalSeconds)
 
     if(!project){
         return(
@@ -26,17 +38,17 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                     </p>
                     <div className="buttons">
                         <button className="button"><img src="./images/icon_details.svg" alt="" /></button>
-                        <p className="date">{thisMonth}</p>
+                        <p className="date">{`${month}月`}</p>
                     </div>
                 </div>
                 <div className="p-project__times">
                     <div className="box">
                         <p className="name">合計<br />時間</p>
-                        <p className="number">7:00</p>
+                        <p className="number">{totalTimeText}</p>
                     </div>
                     <div className="box">
                         <p className="name">稼働<br />日数</p>
-                        <p className="number">20</p>
+                        <p className="number">{workDays}</p>
                     </div>
                 </div>
             </div>

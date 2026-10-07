@@ -8,6 +8,9 @@ export type Segment = {
     projectId : number
     status : 'working' | 'idle'
 }
+
+export type FinishedSegment = Segment & { endTime: number }
+
 export const getCurrentSegment = async () => {
     const result = await chrome.storage.local.get('currentSegment')
     const loaded = (result.currentSegment ?? null) as Segment | null
