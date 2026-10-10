@@ -4,7 +4,7 @@ import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
 import { useTodayRecords } from '../../../../hooks/useTodayRecords';
 import { useProjectContext } from '../../../../contexts/ProjectContext';
 import { useClientBreakdown } from '../../../../hooks/useClientBreakdown';
-import { updateSegment, deleteSegment, findFreeSlot, addNewSegment, type Segment, type SegmentError } from '../../../../utils/storage';
+import { updateSegment, deleteSegment, findFreeSlot, addNewSegment, type FinishedSegment, type SegmentError } from '../../../../utils/storage';
 import { useState } from 'react';
 import { TimeDropdown } from './TimeDropdown';
 import { SegmentDeleteModal } from './SegmentDeleteModal/SegmentDeleteModal';
@@ -41,9 +41,8 @@ export function TodayTab(){
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
     const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
 
-    const handleTimeChange = async (segment:Segment,field:TimeField,unit:TimeUnit,value:number) => {
+    const handleTimeChange = async (segment:FinishedSegment,field:TimeField,unit:TimeUnit,value:number) => {
         const base = segment[field]
-        if(base === null) return
 
         const currentHours = new Date(base).getHours()
         const currentMinutes = new Date(base).getMinutes()

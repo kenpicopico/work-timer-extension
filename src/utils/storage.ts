@@ -23,11 +23,11 @@ export const setCurrentSegment = async ( segment : Segment | null) => {
 
 export const getSegments = async () => {
     const result = await chrome.storage.local.get('segments')
-    const loaded = (result.segments ?? []) as Segment[] | []
+    const loaded = (result.segments ?? []) as FinishedSegment[]
     return loaded
 }
 
-export const addSegment = async ( segment : Segment) => {
+export const addSegment = async ( segment : FinishedSegment) => {
     const currentSegments = await getSegments()
     const newSegments = [...currentSegments,segment]
     await chrome.storage.local.set({'segments': newSegments})
@@ -90,7 +90,7 @@ export type SegmentError =
     | 'NO_FREE_SLOT'
     | 'NO_PROJECT'
 
-export const updateSegment = async (id: number, changes: Partial<Segment>): Promise<SegmentError | null> => {
+export const updateSegment = async (id: number, changes: Partial<FinishedSegment>): Promise<SegmentError | null> => {
     const now = Date.now()
     const segments = await getSegments()
 
@@ -98,19 +98,20 @@ export const updateSegment = async (id: number, changes: Partial<Segment>): Prom
 
     //segmentsにそもそもない
     if(!target) return 'NOT_FOUND'
+
     const edited = {...target, ...changes}
-    const editedEnd = edited.endTime ?? now
+    const editedEnd = edited.endTime
 
     //開始が終了の後
     if(edited.startTime > editedEnd) return 'START_AFTER_END'
 
     //未来の値を設定
-    if(edited.endTime !== null && edited.endTime > now) return 'FUTURE'
+    if(edited.endTime > now) return 'FUTURE'
 
     //segmentsのいずれかと重なっている
     if (segments.some(other =>
       other.id !== id &&
-      edited.startTime < (other.endTime ?? now) &&
+      edited.startTime < other.endTime &&
       other.startTime < editedEnd
     )) return 'OVERLAP'
 
@@ -133,7 +134,7 @@ export const deleteSegment = async (id:number) => {
     await chrome.storage.local.set({'segments':newSegments})
 }
 
-export const findFreeSlot = (todayStartMs:number, segments:Segment[], currentSegment:Segment | null) => {
+export const findFreeSlot = (todayStartMs:number, segments:FinishedSegment[], currentSegment:Segment | null) => {
     const now = Date.now()
     const ONE_MINUTE = 60 * 1000
 
@@ -147,15 +148,15 @@ export const findFreeSlot = (todayStartMs:number, segments:Segment[], currentSeg
 
     while (cursor + ONE_MINUTE <= now) {
         const overlapping = occupied.find(other =>
-            cursor < (other.endTime ?? now) && other.startTime < cursor + ONE_MINUTE
+            cursor < other.endTime && other.startTime < cursor + ONE_MINUTE
         )
         if (overlapping === undefined) return cursor
-        cursor = overlapping.endTime ?? now
+        cursor = overlapping.endTime
     }
     return null
 }
 
 export const addNewSegment = async (startTime: number, projectId:number) => {
-    const newSegment : Segment = { id : Date.now(), startTime : startTime, endTime : startTime + (60 * 1000), projectId : projectId, status : 'working'}
+    const newSegment : FinishedSegment = { id : Date.now(), startTime : startTime, endTime : startTime + (60 * 1000), projectId : projectId, status : 'working'}
     await addSegment(newSegment)
 }

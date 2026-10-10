@@ -1,4 +1,4 @@
-import { type Segment } from "../utils/storage";
+import { type FinishedSegment } from "../utils/storage";
 import { useProjectContext } from "../contexts/ProjectContext";
 import { useClientContext } from "../contexts/ClientContext";
 
@@ -12,7 +12,7 @@ export type ClientBreakdown = {
         totalSeconds: number
     }[]
 }
-export function useClientBreakdown(segments:Segment[]) : { clientBreakdown: ClientBreakdown[] }{
+export function useClientBreakdown(segments:FinishedSegment[]) : { clientBreakdown: ClientBreakdown[] }{
     const { projects } = useProjectContext()
     const { clients } = useClientContext()
 
@@ -21,7 +21,6 @@ export function useClientBreakdown(segments:Segment[]) : { clientBreakdown: Clie
         let totalSeconds = 0
         for(let i = 0; i< projectSegments.length; i++){
             const segment = projectSegments[i]
-            if(segment.endTime === null) continue
             totalSeconds += (segment.endTime - segment.startTime) / 1000
         }
         return {

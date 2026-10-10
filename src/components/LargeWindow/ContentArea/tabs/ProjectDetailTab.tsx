@@ -1,6 +1,6 @@
 import { useProjectContext } from "../../../../contexts/ProjectContext"
 import { useSegments } from "../../../../hooks/useSegments"
-import { filterSegments, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
+import { filterSegments, getMonthDates, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
 import { formatHoursMinutes } from "../../../../utils/time"
 
 type ProjectDetailProps = {
@@ -14,6 +14,7 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth() +1
+    const today = now.getDate()
 
     const segments = useSegments()
 
@@ -22,6 +23,18 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const projectsSegments = filterSegments(segments,[viewingProjectId],period)
     const { totalSeconds, workDays } = summarizeSegments(projectsSegments)
     const totalTimeText = formatHoursMinutes(totalSeconds)
+
+    //棒グラフ
+    const dailyDatas = getMonthDates(projectsSegments,year,month)
+    //カレンダー
+    const firstDay = new Date(year, month - 1, 1)
+    const startEmptyDays = firstDay.getDay()
+    const startEmptyArray = Array(startEmptyDays).fill(null)
+    const totalLength = dailyDatas.length + startEmptyDays
+    const endEmptyDays = (7 - (totalLength % 7) % 7)
+    const endEmptyArray = Array(endEmptyDays).fill(null)
+
+
 
     if(!project){
         return(
@@ -57,73 +70,21 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                 <div className="c-content-inner">
                     <div className="p-project__graph">
                         <div className="p-project__graph-bar">
-                            <div className="bar"><span style={{ height : '4px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '8px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '12px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '16px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '20px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '24px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '28px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '36px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '40px', background : project.color}} /></div>
-
-                            <div className="bar"><span style={{ height : '44px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '48px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '28px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '20px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '0px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '0px', background : project.color}} /></div>
-
-                            <div className="bar"><span style={{ height : '0px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '24px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '28px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '96px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '8px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '12px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '36px', background : project.color}} /></div>
-                            <div className="bar"><span style={{ height : '0px', background : project.color}} /></div>
-
-                            <div className="bar"><span style={{ height : '32px', background : project.color}} /></div>
+                            { dailyDatas.map(d => {
+                                const height = (d.totalSeconds * 4) / 3600
+                                const time = formatHoursMinutes(d.totalSeconds)
+                                return (
+                                    <div key={d.date} className="bar">
+                                        <span className="bg" style={{ height : `${height}px`, background : project.color}} />
+                                        <span className="time">{time}</span>
+                                    </div>
+                                )
+                            })}
                         </div>
                         <div className="p-project__graph-date">
-                            <p>1</p>
-                            <p>2</p>
-                            <p>3</p>
-                            <p>4</p>
-                            <p>5</p>
-                            <p>6</p>
-                            <p>7</p>
-                            <p>8</p>
-                            <p>9</p>
-                            <p>10</p>
-                            <p>11</p>
-                            <p>12</p>
-                            <p>13</p>
-                            <p>14</p>
-                            <p>15</p>
-                            <p>16</p>
-                            <p>17</p>
-                            <p>18</p>
-                            <p>19</p>
-                            <p>20</p>
-                            <p>21</p>
-                            <p>22</p>
-                            <p>23</p>
-                            <p>24</p>
-                            <p>25</p>
-                            <p>26</p>
-                            <p>27</p>
-                            <p>28</p>
-                            <p>29</p>
-                            <p>30</p>
-                            <p>31</p>
+                            {dailyDatas.map(d => (
+                                <p key={d.date}>{d.date}</p>
+                            ))}
                         </div>
                     </div>
                     <div className="p-project__calendar">
@@ -137,7 +98,25 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                             <p>Sat</p>
                         </div>
                         <div className="p-project__calendar-main">
-                            <div className="box">
+                            {startEmptyArray.map((_,index) => (
+                                <div key={index} className="box" />
+                            ))}
+                            {dailyDatas.map(d => {
+                                const time = formatHoursMinutes(d.totalSeconds)
+                                return (
+                                    <div key={d.date} className="box">
+                                        <button className="btn" type="button" disabled={d.date > today}>
+                                            <span className="date">{d.date}</span>
+                                            <p className="working-time">{d.totalSeconds > 0 && time}</p>
+                                        </button>
+                                    </div>
+                                )
+                            })}
+                            {endEmptyArray.map((_,index) => (
+                                <div key={index} className="box" />
+                            ))}
+                            
+                            {/* <div className="box">
                             </div>
                             <div className="box">
                             </div>
@@ -326,7 +305,7 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                                 </button>
                             </div>
                             <div className="box">
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
