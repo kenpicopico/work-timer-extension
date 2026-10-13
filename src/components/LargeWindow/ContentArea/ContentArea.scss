@@ -2,7 +2,7 @@
 
 //ContentArea.tsx
 .p-content{
-    width: 100%;
+    width: 764px;
     height: 100%;
     background: $content-gray;
 }
@@ -435,7 +435,7 @@
     }
     &__caution{
         width: 460px;
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%,-50%);
@@ -599,6 +599,35 @@
                     font-size: 18px;
                     color: $content-text;
                 }
+            }
+        }
+    }
+    &_modal{
+        width: 764px;
+        padding: 10px;
+        border: 1px solid $content-text;
+        border-radius: 8px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: $content-gray;
+        &-inner{
+            width: 100%;
+            min-height: 1px;
+            max-height: 80vh;
+            position: relative;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #555 transparent;
+        }
+        &-close{
+            width: 28px;
+            position: fixed;
+            top: 5px;
+            right: 5px;
+            &:hover{
+                opacity: 0.75;
             }
         }
     }

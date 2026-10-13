@@ -1,7 +1,9 @@
+import { useState } from "react"
 import { useProjectContext } from "../../../../contexts/ProjectContext"
 import { useSegments } from "../../../../hooks/useSegments"
 import { filterSegments, getMonthDates, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
 import { formatHoursMinutes } from "../../../../utils/time"
+import { DayRecords } from "../../../common/DayRecords"
 
 type ProjectDetailProps = {
     viewingProjectId : number
@@ -10,6 +12,7 @@ type ProjectDetailProps = {
 export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const { projects } = useProjectContext()
     const project = projects.find(project => project.id === viewingProjectId)
+    const [ pickupDate, setPickupDate ] = useState<Date | null>(null)
 
     const now = new Date()
     const year = now.getFullYear()
@@ -103,9 +106,10 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                             ))}
                             {dailyDatas.map(d => {
                                 const time = formatHoursMinutes(d.totalSeconds)
+                                const cellDate = new Date(year,month - 1,d.date)
                                 return (
                                     <div key={d.date} className="box">
-                                        <button className="btn" type="button" disabled={d.date > today}>
+                                        <button className="btn" type="button" onClick={() => setPickupDate(cellDate)} disabled={d.date > today}>
                                             <span className="date">{d.date}</span>
                                             <p className="working-time">{d.totalSeconds > 0 && time}</p>
                                         </button>
@@ -115,201 +119,20 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                             {endEmptyArray.map((_,index) => (
                                 <div key={index} className="box" />
                             ))}
-                            
-                            {/* <div className="box">
-                            </div>
-                            <div className="box">
-                            </div>
-                            <div className="box">
-                            </div>
-                            <div className="box">
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">1</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">2</span>
-                                    <p className="working-time">3:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">3</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">4</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">5</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">6</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">7</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">8</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">9</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">10</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">11</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">12</span>
-                                    <p className="working-time">3:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">13</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">14</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">15</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">16</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">17</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">18</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">19</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">20</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">21</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">22</span>
-                                    <p className="working-time">3:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">23</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">24</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">25</span>
-                                    <p className="working-time"></p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">26</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">27</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">28</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">29</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                                <button className="btn" type="button">
-                                    <span className="date">30</span>
-                                    <p className="working-time">4:00</p>
-                                </button>
-                            </div>
-                            <div className="box">
-                            </div> */}
                         </div>
                     </div>
                 </div>
             </div>
+            { pickupDate !== null && (
+                <div className="p-project_modal">
+                    <div className="p-project_modal-inner">
+                        <button className="p-project_modal-close" onClick={() => setPickupDate(null)}>
+                            <img src="./images/icon_close.svg" alt="閉じる" />
+                        </button>
+                        <DayRecords date={pickupDate} />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
