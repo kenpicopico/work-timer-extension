@@ -29,3 +29,14 @@ export const setTimeOfDay = (base:number,hours:number,mimnutes:number):number =>
     d.setHours(hours,mimnutes,0,0)
     return d.getTime()
 }
+
+//2026/10/14（水）に変形
+export function formatDateWithDay(date:Date){
+    const day = ['日', '月', '火', '水', '木', '金', '土']
+    const thisYear = String(date.getFullYear())
+    const thisMonth = String(date.getMonth() + 1).padStart(2, '0')
+    const thisDate = String(date.getDate()).padStart(2, '0')
+    const thisDay = day[date.getDay()]
+    const formattedDate = `${thisYear}/${thisMonth}/${thisDate}（${thisDay}）`
+    return formattedDate
+}

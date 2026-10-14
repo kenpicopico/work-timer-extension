@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { formatElapsedTime } from '../../../../utils/time';
+import { formatElapsedTime, formatDateWithDay } from '../../../../utils/time';
 import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
-import { useDayRecords } from '../../../../hooks/useDayRecords';
 import { DayRecords } from '../../../common/DayRecords';
 
 export function TodayTab(){
     const { statusLabel, statusClass, buttonLabel, buttonIcon, buttonAction, showWarning, elapsedSeconds } = useTrackingDisplay()
     const [ today, setToday ] = useState<Date>(new Date())
-    const { formattedDate } = useDayRecords(today)
 
     useEffect(() => {
         const nextMidnight = new Date(today)
@@ -27,7 +25,7 @@ export function TodayTab(){
             <div className="c-content__head">
                 <div className="c-content__head-date">
                     <p className="today">Today</p>
-                    <p className="date">{formattedDate}</p>
+                    <p className="date">{formatDateWithDay(today)}</p>
                 </div>
                 <div className="p-today__record">
                     <div className="p-today__times">

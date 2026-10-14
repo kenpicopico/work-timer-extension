@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useProjectContext } from "../../../../contexts/ProjectContext"
 import { useSegments } from "../../../../hooks/useSegments"
 import { filterSegments, getMonthDates, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
-import { formatHoursMinutes } from "../../../../utils/time"
+import { formatHoursMinutes, formatDateWithDay } from "../../../../utils/time"
 import { DayRecords } from "../../../common/DayRecords"
 
 type ProjectDetailProps = {
@@ -25,7 +25,6 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const period = getMonthPeriod(year,month)
     const projectsSegments = filterSegments(segments,[viewingProjectId],period)
     const { totalSeconds, workDays } = summarizeSegments(projectsSegments)
-    const totalTimeText = formatHoursMinutes(totalSeconds)
 
     //棒グラフ
     const dailyDatas = getMonthDates(projectsSegments,year,month)
@@ -37,7 +36,9 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
     const endEmptyDays = (7 - (totalLength % 7) % 7)
     const endEmptyArray = Array(endEmptyDays).fill(null)
 
-
+    const selectedDatas = getMonthDates(segments,year,month)
+    const pickupData = pickupDate === null ? undefined : selectedDatas.find(d => d.date === pickupDate.getDate())
+    const dayTotalSeconds = pickupData?.totalSeconds ?? 0
 
     if(!project){
         return(
@@ -60,7 +61,7 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                 <div className="p-project__times">
                     <div className="box">
                         <p className="name">合計<br />時間</p>
-                        <p className="number">{totalTimeText}</p>
+                        <p className="number">{formatHoursMinutes(totalSeconds)}</p>
                     </div>
                     <div className="box">
                         <p className="name">稼働<br />日数</p>
@@ -126,6 +127,17 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
             { pickupDate !== null && (
                 <div className="p-project_modal">
                     <div className="p-project_modal-inner">
+                        <div className="c-content__head">
+                            <div className="c-content__head-date">
+                                <p className="date">{formatDateWithDay(pickupDate)}</p>
+                            </div>
+                            <div className="p-project__times">
+                                <div className="box">
+                                    <p className="name">合計<br />時間</p>
+                                    <p className="number">{formatHoursMinutes(dayTotalSeconds)}</p>
+                                </div>
+                            </div>
+                        </div>
                         <button className="p-project_modal-close" onClick={() => setPickupDate(null)}>
                             <img src="./images/icon_close.svg" alt="閉じる" />
                         </button>

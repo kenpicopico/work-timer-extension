@@ -31,7 +31,7 @@ export type DayRecordsProps = {
 }
 
 export const DayRecords = ({date}:DayRecordsProps) => {
-    const { dayStartMs, daySegments} = useDayRecords(date)
+    const { dayStartMs, dayEndMs, daySegments} = useDayRecords(date)
     const { projects } = useProjectContext()
     const { clients } = useClientContext()
     const { clientBreakdown } = useClientBreakdown(daySegments)
@@ -40,6 +40,9 @@ export const DayRecords = ({date}:DayRecordsProps) => {
 
     const [ warning, setWarning ] = useState<SegmentError | null>(null)
     const [ deleteTargetId, setDeleteTargetId ] = useState<number | null>(null)
+
+    const now = Date.now()
+    const isToday = now >= dayStartMs && now < dayEndMs
 
     const handleTimeChange = async (segment:FinishedSegment,field:TimeField,unit:TimeUnit,value:number) => {
         const base = segment[field]
@@ -198,7 +201,7 @@ export const DayRecords = ({date}:DayRecordsProps) => {
                         )
                     })}
 
-                    { currentSegment !== null && currentSegment.status === 'working' && (
+                    { isToday && currentSegment !== null && currentSegment.status === 'working' && (
                         <li className="item">
                             <span style={{background : `${currentSegmentProject?.color}`}} className="color" />
                             <div className="start">
