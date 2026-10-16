@@ -1,44 +1,49 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useProjectContext } from "../../../../contexts/ProjectContext"
 import { useSegments } from "../../../../hooks/useSegments"
-import { filterSegments, getMonthDates, getMonthPeriod, summarizeSegments } from "../../../../utils/date"
-import { formatHoursMinutes, formatDateWithDay } from "../../../../utils/time"
-import { DayRecords } from "../../../common/DayRecords"
+import { filterSegments, getMonthPeriod, getYearPeriod, summarizeSegments } from "../../../../utils/date"
+import { formatHoursMinutes } from "../../../../utils/time"
+import { MonthView } from "../../../common/MonthView"
+import { YearView } from "../../../common/YearView"
 
 type ProjectDetailProps = {
     viewingProjectId : number
 }
 
+type ViewPeriod = 
+    | { mode : 'month', year : number, month : number}
+    | { mode : 'year',  year : number }
+
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
+
 export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
+    const ref = useRef<HTMLDivElement | null>(null)
     const { projects } = useProjectContext()
     const project = projects.find(project => project.id === viewingProjectId)
-    const [ pickupDate, setPickupDate ] = useState<Date | null>(null)
+    const [ isOpen, setIsOpen ] = useState<boolean>(false)
 
     const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth() +1
-    const today = now.getDate()
+    const [ viewPeriod, setViewPeriod] = useState<ViewPeriod>({ mode : 'month', year : now.getFullYear(), month : now.getMonth() + 1})
+    const [ pickerYear, setPickerYear ] = useState<number>(viewPeriod.year)
 
     const segments = useSegments()
 
     //合計時間と稼働日数
-    const period = getMonthPeriod(year,month)
+    const period = viewPeriod.mode === 'month'
+    ? getMonthPeriod(viewPeriod.year, viewPeriod.month)
+    : getYearPeriod(viewPeriod.year)
     const projectsSegments = filterSegments(segments,[viewingProjectId],period)
     const { totalSeconds, workDays } = summarizeSegments(projectsSegments)
 
-    //棒グラフ
-    const dailyDatas = getMonthDates(projectsSegments,year,month)
-    //カレンダー
-    const firstDay = new Date(year, month - 1, 1)
-    const startEmptyDays = firstDay.getDay()
-    const startEmptyArray = Array(startEmptyDays).fill(null)
-    const totalLength = dailyDatas.length + startEmptyDays
-    const endEmptyDays = (7 - (totalLength % 7) % 7)
-    const endEmptyArray = Array(endEmptyDays).fill(null)
-
-    const selectedDatas = getMonthDates(segments,year,month)
-    const pickupData = pickupDate === null ? undefined : selectedDatas.find(d => d.date === pickupDate.getDate())
-    const dayTotalSeconds = pickupData?.totalSeconds ?? 0
+    useEffect(() => {
+        const handleOutside = (e:MouseEvent) => {
+            if(ref.current && !ref.current.contains(e.target as Node)){
+                setIsOpen(false)
+            }
+        }
+        document.addEventListener('mousedown',handleOutside)
+        return () => document.removeEventListener('mousedown',handleOutside)
+    },[])
 
     if(!project){
         return(
@@ -54,8 +59,35 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                         <span className="project-name">{project.name}</span>
                     </p>
                     <div className="buttons">
-                        <button className="button"><img src="./images/icon_details.svg" alt="" /></button>
-                        <p className="date">{`${month}月`}</p>
+                        <button className="button" onClick={() => {
+                            setIsOpen(!isOpen)
+                            setPickerYear(viewPeriod.year)
+                        }}><img src="./images/icon_details.svg" alt="" /></button>
+                        <p className="date">
+                            {viewPeriod.mode === 'month' ? `${viewPeriod.year}年${viewPeriod.month}月` : `${viewPeriod.year}年`}</p>
+                        { isOpen && (
+                            <div ref={ref} className="p-project__period">
+                                <div className="p-project__period-year">
+                                    <button onClick={() => setPickerYear(prev => prev -1)} className="prev">
+                                        <img src="./images/icon_details.svg" alt="" />
+                                    </button>
+                                    <p className="year">{`${pickerYear}年`}</p>
+                                    <button onClick={() => setPickerYear(prev => prev +1)} className="next"><img src="./images/icon_details.svg" alt="" /></button>
+                                </div>
+                                <div className="p-project__period-month">
+                                    {MONTHS.map(m => (
+                                        <button key={m} onClick={() => {
+                                            setIsOpen(false)
+                                            setViewPeriod({ mode : 'month',year : pickerYear, month : m })
+                                        }}>{`${m}月`}</button>
+                                    ))}
+                                </div>
+                                <button className="p-project__period-thisyear" onClick={() => {
+                                    setIsOpen(false)
+                                    setViewPeriod({ mode : 'year',year : pickerYear })
+                                }}>{`${pickerYear}年`}</button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="p-project__times">
@@ -69,81 +101,10 @@ export function ProjectDetailTab({viewingProjectId}:ProjectDetailProps){
                     </div>
                 </div>
             </div>
-
-            <div className="c-content">
-                <div className="c-content-inner">
-                    <div className="p-project__graph">
-                        <div className="p-project__graph-bar">
-                            { dailyDatas.map(d => {
-                                const height = (d.totalSeconds * 4) / 3600
-                                const time = formatHoursMinutes(d.totalSeconds)
-                                return (
-                                    <div key={d.date} className="bar">
-                                        <span className="bg" style={{ height : `${height}px`, background : project.color}} />
-                                        <span className="time">{time}</span>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                        <div className="p-project__graph-date">
-                            {dailyDatas.map(d => (
-                                <p key={d.date}>{d.date}</p>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="p-project__calendar">
-                        <div className="p-project__calendar-head">
-                            <p>Sun</p>
-                            <p>Mon</p>
-                            <p>Tue</p>
-                            <p>Wed</p>
-                            <p>Thu</p>
-                            <p>Fri</p>
-                            <p>Sat</p>
-                        </div>
-                        <div className="p-project__calendar-main">
-                            {startEmptyArray.map((_,index) => (
-                                <div key={index} className="box" />
-                            ))}
-                            {dailyDatas.map(d => {
-                                const time = formatHoursMinutes(d.totalSeconds)
-                                const cellDate = new Date(year,month - 1,d.date)
-                                return (
-                                    <div key={d.date} className="box">
-                                        <button className="btn" type="button" onClick={() => setPickupDate(cellDate)} disabled={d.date > today}>
-                                            <span className="date">{d.date}</span>
-                                            <p className="working-time">{d.totalSeconds > 0 && time}</p>
-                                        </button>
-                                    </div>
-                                )
-                            })}
-                            {endEmptyArray.map((_,index) => (
-                                <div key={index} className="box" />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            { pickupDate !== null && (
-                <div className="p-project_modal">
-                    <div className="p-project_modal-inner">
-                        <div className="c-content__head">
-                            <div className="c-content__head-date">
-                                <p className="date">{formatDateWithDay(pickupDate)}</p>
-                            </div>
-                            <div className="p-project__times">
-                                <div className="box">
-                                    <p className="name">合計<br />時間</p>
-                                    <p className="number">{formatHoursMinutes(dayTotalSeconds)}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button className="p-project_modal-close" onClick={() => setPickupDate(null)}>
-                            <img src="./images/icon_close.svg" alt="閉じる" />
-                        </button>
-                        <DayRecords date={pickupDate} />
-                    </div>
-                </div>
+            { viewPeriod.mode === 'month' ? (
+                <MonthView year={viewPeriod.year} month={viewPeriod.month} viewingProjectId={viewingProjectId} />
+            ) : (
+                <YearView year={viewPeriod.year} viewingProjectId={viewingProjectId} />
             )}
         </div>
     )

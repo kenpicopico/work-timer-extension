@@ -59,3 +59,22 @@ export function getMonthDates(segments:FinishedSegment[], year:number,month:numb
 
     return dailyData
 }
+
+//棒グラフ：特定の年の月毎の作業時間を配列化
+export function getYearDates(segments:FinishedSegment[], year:number) : { date : number, totalSeconds : number}[]{
+    const dates : { date : number, totalSeconds : number}[] = []
+    for(let i = 1; i <= 12; i++){
+        dates.push({ date : i, totalSeconds : 0})
+    }
+
+    const monthlyData = dates.map(d => {
+        const month = d.date
+        const start = new Date(year,month - 1,1).getTime()
+        const end = new Date(year,month,1).getTime()
+        const newSegments = segments.filter(s => s.startTime >= start && s.startTime < end).map(s => s.endTime - s.startTime)
+        const totalSeconds = newSegments.reduce((sum,s) => sum + s ,0) / 1000
+        return {...d, totalSeconds : totalSeconds}
+    })
+
+    return monthlyData
+}
