@@ -1,3 +1,4 @@
+// import { useClientContext } from "../contexts/ClientContext"
 import { type FinishedSegment } from "./storage"
 
 export type Period = { start : number, end : number }
@@ -52,8 +53,8 @@ export function getMonthDates(segments:FinishedSegment[], year:number,month:numb
         const day = d.date
         const start = new Date(year,month - 1,day).getTime()
         const end = new Date(year,month - 1,day + 1).getTime()
-        const newSegments = segments.filter(s => s.startTime >= start && s.startTime < end).map(s => s.endTime - s.startTime)
-        const totalSeconds = newSegments.reduce((sum,s) => sum + s ,0) / 1000
+        const newSegmentsMs = segments.filter(s => s.startTime >= start && s.startTime < end).map(s => s.endTime - s.startTime)
+        const totalSeconds = newSegmentsMs.reduce((sum,s) => sum + s ,0) / 1000
         return {...d, totalSeconds : totalSeconds}
     })
 
@@ -71,10 +72,31 @@ export function getYearDates(segments:FinishedSegment[], year:number) : { date :
         const month = d.date
         const start = new Date(year,month - 1,1).getTime()
         const end = new Date(year,month,1).getTime()
-        const newSegments = segments.filter(s => s.startTime >= start && s.startTime < end).map(s => s.endTime - s.startTime)
-        const totalSeconds = newSegments.reduce((sum,s) => sum + s ,0) / 1000
+        const newSegmentsMs = segments.filter(s => s.startTime >= start && s.startTime < end).map(s => s.endTime - s.startTime)
+        const totalSeconds = newSegmentsMs.reduce((sum,s) => sum + s ,0) / 1000
         return {...d, totalSeconds : totalSeconds}
     })
 
     return monthlyData
 }
+
+// export type GetYearClientDates = {
+//     date: number
+//     clients: {
+//         clientId: number
+//         totalSeconds: number
+//     }[]
+// }
+// //棒グラフ:特定の年の月毎の全クライアントの作業時間を配列化
+// export function getYearClientDates(segments:FinishedSegment[], year: number) : { monthlyClientData : GetYearClientDates[]}{
+//     const { clients } = useClientContext()
+//     const 
+//     const dates : { date : number, clients : { clientId : number, totalSeconds : number }}[] = []
+//     for(let i = 1; i <= 12; i++){
+//         dates.push({ date : i, clients : { clientId : number, totalSeconds : number }})
+//     }
+//     const monthlyClientData = dates.map(d => {
+        
+//     })
+//     return monthlyClientData
+// }

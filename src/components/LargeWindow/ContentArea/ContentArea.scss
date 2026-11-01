@@ -563,7 +563,8 @@
             grid-template-columns: repeat(7, 1fr);
             border-top: 1px solid $selected-gray;
             .box{
-                height: 64px;
+                max-width: 100px;
+                min-height: 64px;
                 padding: 2px;
                 border-bottom: 1px solid $selected-gray;
                 border-right: 1px solid $selected-gray;
@@ -575,7 +576,10 @@
                 width: 100%;
                 height: 100%;
                 position: relative;
-                padding-top: 26px;
+                padding: 26px 0 15px;
+                &.stats-btn{
+                    padding: 15px 0 11px;
+                }
                 &:hover{
                     background: $hover-gray;
                 }
@@ -592,6 +596,26 @@
                     font-family: "Roboto", sans-serif;
                     font-size: 12px;
                     color: $unselected-gray;
+                }
+                .project-colors{
+                    width: 64%;
+                    margin: 0 auto 6px;
+                    overflow-x: auto;
+                    &__inner{
+                        width: max-content;
+                        min-width: 100%;
+                        display: flex;
+                        justify-content: center;
+                        column-gap: 4px;
+                        span{
+                            flex-shrink: 0;
+                            width: 12px;
+                            aspect-ratio: 1/1;
+                            display: block;
+                            background: red;
+                            border-radius: 20px;
+                        }
+                    }
                 }
                 .working-time{
                     text-align: center;
@@ -699,6 +723,9 @@
                     width: 16px;
                     position: relative;
                     &:hover{
+                        .bg{
+                            outline: 1px solid $content-text;
+                        }
                         .time{
                             opacity: 1;
                         }
@@ -789,6 +816,256 @@
                             color: $unselected-gray;
                             border-right: 1px solid $selected-gray;
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+//統計
+.p-stats{
+    &__inner{
+        margin-top: 10px;
+        padding: 20px;
+        background: $content-main-bg;
+        border-radius: 8px;
+        &:nth-of-type(1){
+            margin-top: 0;
+        }
+        &.nodata{
+            padding: 50px 20px;
+        }
+    }
+    &__client{
+        width: 90%;
+        margin: 0 auto;
+        .name{
+            width: 45.4%;
+            text-align: center;
+        }
+        .total{
+            width: 21.8%;
+            text-align: center;
+        }
+        .days{
+            width: 16.4%;
+            text-align: center;
+        }
+        .average{
+            width: 16.4%;
+            text-align: center;
+        }
+        &-head{
+            padding-bottom: 2.5%;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid $selected-gray;
+            .total,.days,.average{
+                font-size: 14px;
+                font-weight: 500;
+                color: $unselected-gray;
+            }
+        }
+        &-data{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        &-item{
+            padding: 1.5% 0;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid $selected-gray;
+            .name{
+                display: flex;
+                align-items: flex-start;
+                color: $content-text;
+            }
+            .total,.days,.average{
+                font-family: "Roboto", sans-serif;
+                font-size: 18px;
+                font-weight: 400;
+                color: $content-text;
+            }
+            &.client-data{
+                .name{
+                    padding-left: 4%;
+                    .color{
+                        width: 6%;
+                        aspect-ratio: 1/1;
+                        margin-right: 3.4%;
+                        border-radius: 2px;
+                    }
+                    .title{
+                        width: 82%;
+                        text-align: left;
+                        font-size: 16px;
+                        font-weight: 500;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                }
+                .total{
+                    font-size: 20px;
+                    font-weight: 500;
+                }
+            }
+            &.project-data{
+                .name{
+                    padding-left: 8.6%;
+                    .color{
+                        width: 6%;
+                        aspect-ratio: 1/1;
+                        margin-right: 3.4%;
+                        border-radius: 50px;
+                    }
+                    .title{
+                        width: 80%;
+                        text-align: left;
+                        font-size: 15px;
+                        font-weight: 400;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+        }
+    }
+    &__nodata{
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 400;
+        color: $content-text;
+    }
+    &__year{
+        &-inner{
+            padding: 50px 20px;
+            border-radius: 8px;
+            background: $content-main-bg;
+        }
+        &-graph{
+            width: 98.7%;
+            margin: 0 auto;
+            &-bar{
+                width: 100%;
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                border-bottom: 1px solid $content-text;
+                .bars{
+                    min-width: 36px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-end;
+                    position: relative;
+                    .bar{
+                        width: 6px;
+                        &:hover{
+                            .bg{
+                                outline: 1px solid $content-text;
+                            }
+                            .time{
+                                opacity: 1;
+                            }
+                        }
+                        .bg{
+                            width: 100%;
+                            display: block;
+                        }
+                        .time{
+                            position: absolute;
+                            top: -4px;
+                            left: 50%;
+                            transform: translate(-50%,-100%);
+                            font-family: "Roboto", sans-serif;
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: $content-text;
+                            opacity: 0;
+                            z-index: 1;
+                        }
+                    }
+                }
+            }
+            &-date{
+                width: 100%;
+                margin-top: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                p{
+                    width: 36px;
+                    text-align: center;
+                    font-family: "Roboto", sans-serif;
+                    font-size: 12px;
+                    color: $unselected-gray;
+                }
+            }
+        }
+        &-tables{
+            width: 100%;
+            margin-top: 8%;
+            &-title{
+                font-size: 16px;
+                font-weight: 500;
+                color: $unselected-gray;
+            }
+            &-box{
+                width: 100%;
+                margin-top: 2.8%;
+                display: flex;
+                align-items: flex-start;
+                overflow-x: auto;
+            }
+            .column{
+                border-right: 1px solid $selected-gray;
+                p{
+                    height: 38px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-bottom: 1px solid $selected-gray;
+                    font-family: "Roboto", sans-serif;
+                    font-size: 15px;
+                    font-weight: 400;
+                    &.noto{
+                        font-family: "Noto Sans JP", sans-serif;
+                    }
+                }
+            }
+            .months{
+                min-width: 5.7%;
+                p{
+                    color: $unselected-gray;
+                }
+            }
+            .client{
+                width: 22%;
+                p{
+                    color: $content-text;
+                    .color{
+                        width: 12px;
+                        aspect-ratio: 1/1;
+                        display: block;
+                        margin-right: 5px;
+                        border-radius: 2px;
+                        background: red;
+                    }
+                    .name{
+                        width: 70%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        font-weight: 500;
+                    }
+                    &.total{
+                        font-size: 16px;
+                        font-weight: 700;
                     }
                 }
             }
