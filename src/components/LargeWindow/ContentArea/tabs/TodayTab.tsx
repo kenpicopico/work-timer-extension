@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
-import { formatElapsedTime, formatDateWithDay } from '../../../../utils/time';
-import { useTrackingDisplay } from '../../../../hooks/useTrackingDisplay';
+import { formatDateWithDay } from '../../../../utils/time';
 import { DayRecords } from '../../../common/DayRecords';
+import { useSegments } from '../../../../hooks/useSegments';
+import { summarizeSegments } from '../../../../utils/date';
+import { formatHoursMinutes } from '../../../../utils/time';
 
 export function TodayTab(){
-    const { statusLabel, statusClass, buttonLabel, buttonIcon, buttonAction, showWarning, elapsedSeconds } = useTrackingDisplay()
     const [ today, setToday ] = useState<Date>(new Date())
+
+    const segments = useSegments()
+
+    const todayMs = new Date(today).setHours(0, 0, 0, 0);
+    const tomorrowMs = new Date(today).setHours(24, 0, 0, 0);
+    const period = { start : todayMs, end : tomorrowMs }
+    const todaySegments = segments.filter(s => s.startTime >= period.start && s.startTime < period.end)
+    const { totalSeconds } = summarizeSegments(todaySegments)
 
     useEffect(() => {
         const nextMidnight = new Date(today)
@@ -27,31 +36,17 @@ export function TodayTab(){
                     <p className="today">Today</p>
                     <p className="date">{formatDateWithDay(today)}</p>
                 </div>
-                <div className="p-today__record">
-                    <div className="p-today__times">
-                        <p className={`status ${statusClass}`}>{statusLabel}</p>
-                        <p className="time">{formatElapsedTime(elapsedSeconds)}</p>
+                <div className="p-project__times">
+                    <div className="box">
+                        <p className="name">合計<br />時間</p>
+                        <p className="number">{formatHoursMinutes(totalSeconds)}</p>
                     </div>
-                    <button 
-                        className={`p-today__button ${statusClass}`} 
-                        onClick={buttonAction}
-                    >
-                        <img src={buttonIcon} alt="" />{buttonLabel}
-                    </button>
                 </div>
             </div>
 
             <div className="c-content">
                 <DayRecords date={today} />
             </div>
-        { showWarning && (
-            <div className="p-today__caution">
-                <div className="p-today__caution-inner">
-                    <button><img src="./images/icon_close.svg" alt="閉じる" /></button>
-                    <p>サイドバーから案件を追加してください</p>
-                </div>
-            </div>
-        )}
         </div>
     )
 }

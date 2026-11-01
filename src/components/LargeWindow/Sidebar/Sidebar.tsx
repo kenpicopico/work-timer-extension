@@ -9,6 +9,9 @@ import { getProjectColors,findUnusedColor } from '../../../utils/color'
 import { WarningPopup } from '../../common/WarningPopup'
 import { COLOR_PALETTE } from '../../../utils/color'
 import { ColorPalette } from '../../common/ColorPalette'
+import { useTrackingDisplay } from '../../../hooks/useTrackingDisplay'
+import { formatElapsedTime } from '../../../utils/time'
+import { useTrackingContext } from '../../../contexts/TrackingContext'
 
 type SidebarProps = {
     activeTab : ActiveTab
@@ -32,6 +35,8 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
     const { clients, addClient, renameClient, deleteClient, changeClientColor } = useClientContext()
     const { projects, addProject, renameProject, deleteProject, changeProjectColor, updateProjectColor } = useProjectContext()
     const { projectId, selectProject } = useSelectionContext()
+    const { statusLabel, statusClass, buttonLabel, buttonIcon, buttonAction, showWarning, elapsedSeconds } = useTrackingDisplay()
+    const { currentSegment, startTracking } = useTrackingContext()
 
     const [ editingClientId, setEditingClientId ] = useState<number | null>(null)
     const [ editingProjectId, setEditingProjectId ] = useState<number | null>(null)
@@ -292,7 +297,18 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
                                                 )}
                                                 <div className='p-sidebar__project-edits'>
                                                     {clientProject.id !== projectId && (
-                                                        <button className='c-tooltip' data-tooltip="デフォルトに設定" onClick={() => selectProject(clientProject.id)}><img src="./images/icon_pin.svg" alt="" /></button>
+                                                        <button 
+                                                            className='c-tooltip' 
+                                                            data-tooltip="デフォルトに設定" 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                selectProject(clientProject.id)
+                                                                if(currentSegment !== null){
+                                                                    startTracking(clientProject.id)
+                                                                }
+                                                            }}>
+                                                            <img src="./images/icon_pin.svg" alt="" />
+                                                        </button>
                                                     )}
                                                     <button className='c-tooltip' data-tooltip="名前の編集" onClick={(e) =>handleStartEditProject(e,clientProject.id,clientProject.name)}><img src="./images/icon_edit.svg" alt="" /></button>
                                                     <button className='c-tooltip' data-tooltip="削除" onClick={() => setDeleteTarget({ type : 'project', id : clientProject.id, name : clientProject.name })}><img src="./images/icon_delete_white.svg" alt="" /></button>
@@ -319,13 +335,37 @@ export function Sidebar({activeTab,setActiveTab,viewingProjectId,setViewingProje
             </div>
 
             <div className="p-sidebar__bottom">
+
+                <div className="p-sidebar__bottom-record">
+                    <div className="p-sidebar__bottom-times">
+                        <p className={`status ${statusClass}`}>{statusLabel}</p>
+                        <p className="time">{formatElapsedTime(elapsedSeconds)}</p>
+                    </div>
+                    <button 
+                        className={`p-sidebar__bottom-button ${statusClass}`} 
+                        onClick={buttonAction}
+                    >
+                        <img src={buttonIcon} alt="" />{buttonLabel}
+                    </button>
+                </div>
+
                 <button className={`p-sidebar__setting ${ activeTab === 'settings' ? 'is-selected' : ''}`} onClick={() => setActiveTab('settings')}>
                     <img src="./images/icon_settings.svg" alt="" />
                     設定
                 </button>
-                <button className="p-sidebar__login">ログイン</button>
+
+                {/* <button className="p-sidebar__login">ログイン</button> */}
             </div>
 
+            { showWarning && (
+                <div className="p-sidebar__caution">
+                    <div className="p-sidebar__caution-inner">
+                        <button><img src="./images/icon_close.svg" alt="閉じる" /></button>
+                        <p>サイドバーから案件を追加してください</p>
+                    </div>
+                </div>
+            )}
+            
             { deleteTarget && (
                 <DeleteConfirmModal 
                     deleteTarget={deleteTarget} 

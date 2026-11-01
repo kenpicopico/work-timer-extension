@@ -324,6 +324,73 @@
     &__bottom{
         width: 100%;
         margin-top: auto;
+        &-record{
+            padding-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            row-gap: 15px;
+        }
+        &-times{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            .status{
+                font-size: 12px;
+                font-weight: 400;
+                color: $content-text;
+                &.is-tracking{
+                    color: $green;
+                }
+                &.is-idling{
+                    color: $yellow;
+                }
+            }
+            .time{
+                margin-top: 8px;
+                font-size: 36px;
+                font-weight: 400;
+                color: $content-text;
+            }
+        }
+        &-button{
+            width: 90%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            column-gap: 10px;
+            color: white;
+            font-family: "Roboto", sans-serif;
+            font-size: 32px;
+            font-weight: 400;
+            border-radius: 200px;
+            transition: filter 0.2s ease;
+            &:hover{
+                filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+            }
+            &.is-paused{
+                background: $light-green;
+                border: 2px solid $green;
+                img{
+                    width: 22px;
+                }
+            }
+            &.is-tracking{
+                background: $light-red;
+                border: 2px solid $red;
+                img{
+                    width: 22px;
+                }
+            }
+            &.is-idling{
+                background: $light-red;
+                border: 2px solid $red;
+                img{
+                    width: 22px;
+                }
+            }
+        }
     }
     &__setting{
         width: 100%;
@@ -358,6 +425,40 @@
         }
         &:hover{
             background: $hover-gray;
+        }
+    }
+    &__caution{
+        width: 460px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        border-radius: 8px;
+        background: $content-main-bg;
+        border: 1px solid $content-text;
+        z-index: 10;
+        &-inner{
+            width: 100%;
+            padding: 50px 0;
+            position: relative;
+            button{
+                width: 28px;
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                &:hover{
+                    opacity: 0.75;
+                }
+            }
+            p{
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.5;
+                color: $content-text;
+                .message{
+                    white-space: pre-line;
+                }
+            }
         }
     }
 }
